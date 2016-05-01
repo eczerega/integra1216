@@ -36,12 +36,31 @@ class TestingController < ApplicationController
 		return @data
 	end
 
+	def get_all_sku
+		@almacenes = get_almacenes_id
+		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock', 'GET', '')
 
+	end
+
+	def all_skus
+		@almacenes = get_almacenes_id
+		@all_skus=Array.new
+		@almacenes.each do |almacen|
+			@all_skus.push(getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId='+almacen, 'GET'+almacen, ''))
+		end
+		return @all_skus
+	end
+
+	def sku_by_almacen_id(almacen_id)
+		@all_skus.push(getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId='+almacen, 'GET'+almacen, ''))
+	end
 
 
 	def index
 		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
 		@data = get_almacenes_id
+
+		@all_skus=all_skus
 	end
 
 end
