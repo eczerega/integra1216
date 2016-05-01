@@ -59,6 +59,15 @@ def ApiBodegaGetSku(request)
   return response
 end
 
+def getInfoFromJSON(input,field)
+  @data=Array.new
+    JSON.parse(input).each do |data_value|
+      @data.push(data_value[field])
+    end
+
+  return @data[0]
+end
+
 def ApiProducirMp(sku, num_batch)
 
   if sku!=7 && sku!=15
@@ -82,13 +91,16 @@ def ApiProducirMp(sku, num_batch)
     url_bodega = "http://integracion-2016-dev.herokuapp.com/bodega/"
     url_banco = "http://mare.ing.puc.cl/banco/"
 
-    response = getJSONData(url_banco+"cuenta/571262c3a980ba030058ab65")
+    @response = getJSONData(url_banco+"cuenta/571262c3a980ba030058ab65")
 
-    puts response
+    saldo = getInfoFromJSON(@response,"saldo")
+    puts saldo
 
     if saldo >= costo_prod
-      response2 = getJSONData(url_bodega+"fabrica/getCuenta")
-      cuenta_id = response2["cuentaId"]
+      @response2 = getJSONData(url_bodega+"fabrica/getCuenta")
+      puts @response2
+
+      cuenta_id = getInfoFromJSON(@response2,"cuenta_id");
       puts cuenta_id
 
       #puts RestClient.put url_banco+"trx", {:Authorization => @hashi_get, :Params => {"monto":costo_prod,"origen":"571262c3a980ba030058ab65","destino":"cuenta_id"}}
