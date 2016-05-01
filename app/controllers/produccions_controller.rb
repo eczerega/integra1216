@@ -1,6 +1,16 @@
+
+url_bodega="http://integracion-2016-dev.herokuapp.com/bodega"
+
+#permite generar el hash para las distintas autorizaciones, lo retorna
+def generateHash (contenidoSignature)
+  return Base64.encode64((HMAC::SHA1.new('akVf0btGVOwkhvI') << contenidoSignature).digest).strip
+end
+
 class ProduccionsController < ApplicationController
   before_action :set_produccion, only: [:show, :edit, :update, :destroy]
     layout false
+
+
   # GET /produccions
   # GET /produccions.json
   def index
@@ -15,6 +25,11 @@ class ProduccionsController < ApplicationController
   # GET /produccions/new
   def new
     @produccion = Produccion.new
+
+    #@hashi = 'INTEGRACION grupo12:'+generateHash('GET').to_s
+    #response = JSON.parse RestClient.get url_bodega+"fabrica/getCuentaFabrica", {:Authorization => @hashi}
+
+    puts response
   end
 
   # GET /produccions/1/edit
