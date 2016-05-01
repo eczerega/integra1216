@@ -1,0 +1,29 @@
+<%= form_for(@produccion) do |f| %>
+  <% if @produccion.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@produccion.errors.count, "error") %> prohibited this produccion from being saved:</h2>
+
+      <ul>
+      <% @produccion.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :id_dev %><br>
+    <%= f.text_field :id_dev %>
+  </div>
+  <div class="field">
+    <%= f.label :created_at_dev %><br>
+    <%= f.text_field :created_at_dev %>
+  </div>
+  <div class="field">
+    <%= f.label :fecha_termino %><br>
+    <%= f.date_select :fecha_termino %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

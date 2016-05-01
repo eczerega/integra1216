@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  id_dev: MyString
+  created_at_dev: MyString
+  fecha_termino: 2016-05-01
+
+two:
+  id_dev: MyString
+  created_at_dev: MyString
+  fecha_termino: 2016-05-01

@@ -1,0 +1,69 @@
+<%= form_for(@oc_rcibida) do |f| %>
+  <% if @oc_rcibida.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@oc_rcibida.errors.count, "error") %> prohibited this oc_rcibida from being saved:</h2>
+
+      <ul>
+      <% @oc_rcibida.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :id_dev %><br>
+    <%= f.text_field :id_dev %>
+  </div>
+  <div class="field">
+    <%= f.label :created_at_dev %><br>
+    <%= f.date_select :created_at_dev %>
+  </div>
+  <div class="field">
+    <%= f.label :canal %><br>
+    <%= f.text_field :canal %>
+  </div>
+  <div class="field">
+    <%= f.label :sku %><br>
+    <%= f.text_field :sku %>
+  </div>
+  <div class="field">
+    <%= f.label :cantidad %><br>
+    <%= f.number_field :cantidad %>
+  </div>
+  <div class="field">
+    <%= f.label :precio_unit %><br>
+    <%= f.number_field :precio_unit %>
+  </div>
+  <div class="field">
+    <%= f.label :entrega_at %><br>
+    <%= f.date_select :entrega_at %>
+  </div>
+  <div class="field">
+    <%= f.label :despacho_at %><br>
+    <%= f.date_select :despacho_at %>
+  </div>
+  <div class="field">
+    <%= f.label :estado %><br>
+    <%= f.text_field :estado %>
+  </div>
+  <div class="field">
+    <%= f.label :rechazo %><br>
+    <%= f.text_field :rechazo %>
+  </div>
+  <div class="field">
+    <%= f.label :anulacion %><br>
+    <%= f.text_field :anulacion %>
+  </div>
+  <div class="field">
+    <%= f.label :notas %><br>
+    <%= f.text_field :notas %>
+  </div>
+  <div class="field">
+    <%= f.label :id_factura_dev %><br>
+    <%= f.text_field :id_factura_dev %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

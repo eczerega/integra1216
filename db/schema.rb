@@ -11,10 +11,54 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160428081551) do
+ActiveRecord::Schema.define(version: 20160501181500) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "oc_rcibidas", force: :cascade do |t|
+    t.string   "id_dev"
+    t.date     "created_at_dev"
+    t.string   "canal"
+    t.string   "sku"
+    t.integer  "cantidad"
+    t.integer  "precio_unit"
+    t.date     "entrega_at"
+    t.date     "despacho_at"
+    t.string   "estado"
+    t.string   "rechazo"
+    t.string   "anulacion"
+    t.string   "notas"
+    t.string   "id_factura_dev"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  create_table "oc_recibidas", force: :cascade do |t|
+    t.string   "id_dev"
+    t.date     "created_at_dev"
+    t.string   "canal"
+    t.string   "sku"
+    t.integer  "cantidad"
+    t.integer  "precio_unit"
+    t.date     "entrega_at"
+    t.date     "despacho_at"
+    t.string   "estado"
+    t.string   "rechazo"
+    t.string   "anulacion"
+    t.string   "notas"
+    t.string   "id_factura_dev"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  create_table "produccions", force: :cascade do |t|
+    t.string   "id_dev"
+    t.string   "created_at_dev"
+    t.date     "fecha_termino"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
 
   create_table "tasks", force: :cascade do |t|
     t.string   "title"

@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Id dev:</strong>
+  <%= @produccion.id_dev %>
+</p>
+
+<p>
+  <strong>Created at dev:</strong>
+  <%= @produccion.created_at_dev %>
+</p>
+
+<p>
+  <strong>Fecha termino:</strong>
+  <%= @produccion.fecha_termino %>
+</p>
+
+<%= link_to 'Edit', edit_produccion_path(@produccion) %> |
+<%= link_to 'Back', produccions_path %>

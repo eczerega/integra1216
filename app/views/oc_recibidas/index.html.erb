@@ -1,0 +1,51 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Oc Recibidas</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Id dev</th>
+      <th>Created at dev</th>
+      <th>Canal</th>
+      <th>Sku</th>
+      <th>Cantidad</th>
+      <th>Precio unit</th>
+      <th>Entrega at</th>
+      <th>Despacho at</th>
+      <th>Estado</th>
+      <th>Rechazo</th>
+      <th>Anulacion</th>
+      <th>Notas</th>
+      <th>Id factura dev</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @oc_recibidas.each do |oc_recibida| %>
+      <tr>
+        <td><%= oc_recibida.id_dev %></td>
+        <td><%= oc_recibida.created_at_dev %></td>
+        <td><%= oc_recibida.canal %></td>
+        <td><%= oc_recibida.sku %></td>
+        <td><%= oc_recibida.cantidad %></td>
+        <td><%= oc_recibida.precio_unit %></td>
+        <td><%= oc_recibida.entrega_at %></td>
+        <td><%= oc_recibida.despacho_at %></td>
+        <td><%= oc_recibida.estado %></td>
+        <td><%= oc_recibida.rechazo %></td>
+        <td><%= oc_recibida.anulacion %></td>
+        <td><%= oc_recibida.notas %></td>
+        <td><%= oc_recibida.id_factura_dev %></td>
+        <td><%= link_to 'Show', oc_recibida %></td>
+        <td><%= link_to 'Edit', edit_oc_recibida_path(oc_recibida) %></td>
+        <td><%= link_to 'Destroy', oc_recibida, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Oc recibida', new_oc_recibida_path %>

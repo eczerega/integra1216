@@ -67,7 +67,65 @@ app.config(function(
                     .state('documentation', {
                       url: '/documentation',
                       templateUrl: '/documentation'
+                    })
+
+
+                    //Produccion
+                    .state('produccions', {
+                      url: '/produccions',
+                      templateUrl: '/produccions'
+                    })
+                    .state('produccions/new', {
+                      url: '/produccions/new',
+                      templateUrl: '/produccions/new'
+                    })
+                    .state('produccions-show', {
+                      url: '/produccions/:id',
+                        templateUrl:
+                            function ($stateParams) {
+                              id= $stateParams.id;
+                              return '/produccions/'+id
+                            }
+                    })
+                    .state('produccions-edit', {
+                      url: '/produccions/:id/edit',
+                        templateUrl:
+                            function ($stateParams) {
+                              id= $stateParams.id;
+                              return '/produccions/'+id+'/edit'
+                            }
+                    })
+
+
+
+                    //Ordenes
+                    .state('oc_recibidas', {
+                      url: '/oc_recibidas',
+                      templateUrl: '/oc_recibidas'
+                    })
+                    .state('oc_recibidas/new', {
+                      url: '/oc_recibidas/new',
+                      templateUrl: '/oc_recibidas/new'
+                    })
+                    .state('oc_recibidas-show', {
+                      url: '/oc_recibidas/:id',
+                        templateUrl:
+                            function ($stateParams) {
+                              id= $stateParams.id;
+                              return '/oc_recibidas/'+id
+                            }
+                    })
+                    .state('oc_recibidas-edit', {
+                      url: '/oc_recibidas/:id/edit',
+                        templateUrl:
+                            function ($stateParams) {
+                              id= $stateParams.id;
+                              return '/oc_recibidas/'+id+'/edit'
+                            }
                     });
+
+
+
                 }
 
 

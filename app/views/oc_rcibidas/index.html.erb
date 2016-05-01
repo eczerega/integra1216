@@ -1,0 +1,51 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Oc Rcibidas</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Id dev</th>
+      <th>Created at dev</th>
+      <th>Canal</th>
+      <th>Sku</th>
+      <th>Cantidad</th>
+      <th>Precio unit</th>
+      <th>Entrega at</th>
+      <th>Despacho at</th>
+      <th>Estado</th>
+      <th>Rechazo</th>
+      <th>Anulacion</th>
+      <th>Notas</th>
+      <th>Id factura dev</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @oc_rcibidas.each do |oc_rcibida| %>
+      <tr>
+        <td><%= oc_rcibida.id_dev %></td>
+        <td><%= oc_rcibida.created_at_dev %></td>
+        <td><%= oc_rcibida.canal %></td>
+        <td><%= oc_rcibida.sku %></td>
+        <td><%= oc_rcibida.cantidad %></td>
+        <td><%= oc_rcibida.precio_unit %></td>
+        <td><%= oc_rcibida.entrega_at %></td>
+        <td><%= oc_rcibida.despacho_at %></td>
+        <td><%= oc_rcibida.estado %></td>
+        <td><%= oc_rcibida.rechazo %></td>
+        <td><%= oc_rcibida.anulacion %></td>
+        <td><%= oc_rcibida.notas %></td>
+        <td><%= oc_rcibida.id_factura_dev %></td>
+        <td><%= link_to 'Show', oc_rcibida %></td>
+        <td><%= link_to 'Edit', edit_oc_rcibida_path(oc_rcibida) %></td>
+        <td><%= link_to 'Destroy', oc_rcibida, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Oc rcibida', new_oc_rcibida_path %>

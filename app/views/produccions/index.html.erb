@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Produccions</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Id dev</th>
+      <th>Created at dev</th>
+      <th>Fecha termino</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @produccions.each do |produccion| %>
+      <tr>
+        <td><%= produccion.id_dev %></td>
+        <td><%= produccion.created_at_dev %></td>
+        <td><%= produccion.fecha_termino %></td>
+        <td><%= link_to 'Show', produccion %></td>
+        <td><%= link_to 'Edit', edit_produccion_path(produccion) %></td>
+        <td><%= link_to 'Destroy', produccion, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Produccion', new_produccion_path %>
