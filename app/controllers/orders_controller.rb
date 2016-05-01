@@ -2,9 +2,7 @@ require 'base64'
 require 'cgi'
 require 'openssl'
 require 'net/http'
-#permite generar el hash para las distintas autorizaciones, lo retorna
-
-
+require 'json'
 
 class OrdersController < ApplicationController
 
@@ -28,7 +26,9 @@ class OrdersController < ApplicationController
 
 	def index
 		@data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
-		 
+		@data.each_line do |line|
+
+		end
 
 	  #@response = JSON.parse RestClient.get data_ur_almacenes, {:Authorization => @hashi}
 	end
