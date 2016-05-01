@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      lang="en" dir="ltr">
+  <head>
+<base href="https://launchpad.net/ubuntu/utopic/powerpc/init-system-helpers/1.18/+index" />
+
+    <meta charset="UTF-8" />
+    <title>1.18 : init-system-helpers : powerpc : Utopic (14.10) : Ubuntu</title>
+    <link rel="shortcut icon" href="/@@/launchpad.png" />
+    
+    
+    
+
+    
+  
+  <link type="text/css" rel="stylesheet"
+        media="screen, print"
+        href="/+icing/rev17995/combo.css" />
+
+
+    
+
+    
+      <meta name="description"
+            content=" This package contains helper tools that are necessary for switching between
+ the various init systems that Debian contains (e.g. sysvinit, upstart,
+ systemd). An example is deb-systemd-helper, a script that enables systemd unit
+ files without depending on a running systemd.
+ .
+ While this package is maintained by pkg-systemd-maintainers, it is NOT
+ specific to systemd at all. Maintainers of other init systems are welcome to
+ include their helpers in this package." />
+    
+
+    
+  
+
+  
+  
+  <script type="text/javascript">
+    var LP = {
+        cache: {},
+        links: {}
+    };
+  </script>
+
+  
+
+  <script type="text/javascript">var cookie_scope = '; Path=/; Secure; Domain=.launchpad.net';</script>
+
+   <script type="text/javascript"
+           src="/+combo/rev17995/?yui/yui/yui-min.js&amp;lp/meta.js&amp;yui/loader/loader-min.js"></script>
+   <script type="text/javascript">
+        var raw = null;
+        if (LP.devmode) {
+           raw = 'raw';
+        }
+        YUI.GlobalConfig = {
+            combine: true,
+            comboBase: '/+combo/rev17995/?',
+            root: 'yui/',
+            filter: raw,
+            debug: false,
+            fetchCSS: false,
+            maxURLLength: 2000,
+            groups: {
+                lp: {
+                    combine: true,
+                    base: '/+combo/rev17995/?lp/',
+                    comboBase: '/+combo/rev17995/?',
+                    root: 'lp/',
+                    // comes from including lp/meta.js
+                    modules: LP_MODULES,
+                    fetchCSS: false
+                }
+            }
+        }</script>
+
+  <script type="text/javascript">
+      // we need this to create a single YUI instance all events and code
+      // talks across. All instances of YUI().use should be based off of
+      // LPJS instead.
+      LPJS = new YUI();
+  </script>
+
+
+
+    <script id="base-layout-load-scripts" type="text/javascript">
+        //<![CDATA[
+        LPJS.use('base', 'node', 'console', 'event',
+            'oop', 'lp', 'lp.app.foldables','lp.app.sorttable',
+            'lp.app.inlinehelp', 'lp.app.links', 'lp.app.longpoll',
+            'lp.bugs.bugtask_index', 'lp.bugs.subscribers',
+            'lp.app.ellipsis', 'lp.code.branchmergeproposal.diff',
+            'lp.views.global',
+             function(Y) {
+
+            Y.on("domready", function () {
+                var global_view = new Y.lp.views.Global();
+                global_view.render();
+
+                Y.lp.app.sorttable.SortTable.init();
+                Y.lp.app.inlinehelp.init_help();
+                Y.lp.activate_collapsibles();
+                Y.lp.app.foldables.activate();
+                Y.lp.app.links.check_valid_lp_links();
+                // Longpolling will only start if
+                // LP.cache.longpoll is populated.
+                // We use Y.later to work around a Safari/Chrome 'feature':
+                // The mouse cursor stays 'busy' until all the requests started during
+                // page load are finished.  Hence we want the long poll request to start
+                // right *after* the page has loaded.
+                Y.later(0, Y.lp.app.longpoll, Y.lp.app.longpoll.setupLongPollManager);
+
+            });
+
+            Y.on('lp:context:web_link:changed', function(e) {
+                  window.location = e.new_value;
+            });
+        });
+        //]]>
+    </script>
+    <script id="base-helper-functions" type="text/javascript">
+         //<![CDATA[
+        // This code is pulled from lp.js that needs to be available on every
+        // request. Pulling here to get it outside the scope of the YUI block.
+        function setFocusByName(name) {
+            // Focus the first element matching the given name which can be focused.
+            var nodes = document.getElementsByName(name);
+            var i, node;
+            for (i = 0; i < nodes.length; i++) {
+                node = nodes[i];
+                if (node.focus) {
+                    try {
+                        // Trying to focus a hidden element throws an error in IE8.
+                        if (node.offsetHeight !== 0) {
+                            node.focus();
+                        }
+                    } catch (e) {
+                        LPJS.use('console', function(Y) {
+                            Y.log('In setFocusByName(<' +
+                                node.tagName + ' type=' + node.type + '>): ' + e);
+                        });
+                    }
+                    break;
+                }
+            }
+        }
+
+        function selectWidget(widget_name, event) {
+          if (event && (event.keyCode === 9 || event.keyCode === 13)) {
+              // Avoid firing if user is tabbing through or simply pressing
+              // enter to submit the form.
+              return;
+          }
+          document.getElementById(widget_name).checked = true;
+        }
+        //]]>
+    </script>
+
+    
+      
+    
+  </head>
+
+  <body id="document" itemscope=""
+        itemtype="http://schema.org/WebPage"
+        class="tab-overview
+      main_only
+      public
+      yui3-skin-sam">
+          
+          
+    <div class="yui-d0">
+      <div id="locationbar" class="login-logout">
+        
+
+<div id="logincontrol"><a href="https://launchpad.net/ubuntu/utopic/powerpc/init-system-helpers/1.18/+login">Log in / Register</a></div>
+
+
+
+      </div><!--id="locationbar"-->
+
+      <div id="watermark" class="watermark-apps-portlet">
+        <div>
+          <a href="https://launchpad.net/ubuntu"><img alt="" width="64" height="64" src="https://launchpadlibrarian.net/49558155/64_logo.png" /></a>
+        </div>
+        <div class="wide">
+          <h2 id="watermark-heading"><a href="https://launchpad.net/ubuntu">Ubuntu</a></h2>
+        </div>
+        
+  <!-- Application Menu -->
+  <ul class="facetmenu">
+    
+      <li class="overview active"><a
+    href="https://launchpad.net/ubuntu">Overview</a></li>
+      
+      
+    
+    
+      
+      <li class="branches"><a
+    href="https://code.launchpad.net/ubuntu">Code</a></li>
+      
+    
+    
+      
+      <li class="bugs"><a href="https://bugs.launchpad.net/ubuntu">Bugs</a></li>
+      
+    
+    
+      
+      <li class="specifications"><a
+    href="https://blueprints.launchpad.net/ubuntu">Blueprints</a></li>
+      
+    
+    
+      
+      <li class="translations"><a
+    href="https://translations.launchpad.net/ubuntu">Translations</a></li>
+      
+    
+    
+      
+      <li class="answers"><a href="https://answers.launchpad.net/ubuntu">Answers</a></li>
+      
+    
+  </ul>
+
+      </div>
+
+      
+        <div id="maincontent" class="yui-main">
+          <div class="yui-b" dir="ltr">
+            <div class="context-publication">
+              <div>
+  <h1>init-system-helpers 1.18 (powerpc binary) in ubuntu utopic</h1>
+</div>
+              <ol itemprop="breadcrumb" class="breadcrumbs">
+
+
+  <li>
+    <a href="https://launchpad.net/ubuntu/utopic">Utopic (14.10)</a>
+  </li>
+
+
+  <li>
+    <a href="https://launchpad.net/ubuntu/utopic/powerpc">powerpc</a>
+  </li>
+
+
+  <li>
+    <a href="https://launchpad.net/ubuntu/utopic/powerpc/init-system-helpers">init-system-helpers</a>
+  </li>
+
+
+  <li>
+    1.18
+  </li>
+
+</ol>
+
+              <div id="registration" class="registering">
+                
+              </div>
+            </div>
+
+            
+            <div id="request-notifications">
+              
+            </div>
+
+            
+              <div>
+
+
+  <div class="top-portlet">
+  <p>&nbsp;This package contains helper tools that are necessary for switching between<br />
+&nbsp;the various init systems that Debian contains (e.g. sysvinit, upstart,<br />
+&nbsp;systemd). An example is deb-systemd-helper, a script that enables systemd unit<br />
+&nbsp;files without depending on a running systemd.<br />
+&nbsp;.<br />
+&nbsp;While this package is maintained by pkg-systemd-<wbr />maintainers, it is NOT<br />
+&nbsp;specific to systemd at all. Maintainers of other init systems are welcome to<br />
+&nbsp;include their helpers in this package.</p>
+  </div>
+
+  <div class="yui-g">
+
+  <div class="first yui-u">
+    <div class="portlet" id="portlet-details">
+
+  <h2>Details</h2>
+
+  <div class="two-column-list">
+
+  <dl>
+    <dt>Package version:</dt>
+    <dd>1.18</dd>
+  </dl>
+
+  <dl>
+    <dt>Source:</dt>
+    <dd id="source">
+    <a href="/ubuntu/+source/init-system-helpers/1.18">init-system-helpers 1.18 source package in Ubuntu</a><br />
+    </dd>
+  </dl>
+
+  <dl>
+    <dt>Status:</dt>
+    <dd>Superseded</dd>
+  </dl>
+
+  <dl>
+    <dt>Component:</dt>
+    <dd>main</dd>
+  </dl>
+
+  <dl>
+    <dt>Priority:</dt>
+    <dd>Important</dd>
+  </dl>
+
+  
+
+  </div>
+
+</div>
+
+  </div>
+
+  <div class="yui-u">
+    <div class="portlet">
+      <h2>Downloadable files</h2>
+      <div id="files">
+        <div id="build">
+            <a href="/ubuntu/+source/init-system-helpers/1.18/+build/5939678">i386 build of init-system-helpers 1.18 in ubuntu utopic PROPOSED</a> produced
+            <span>
+              these files:
+            </span>
+            
+        </div>
+
+        <div id="downloadable-files">
+            <ul>
+              <li>
+                
+                
+                  <a class="sprite"
+                     href="http://launchpadlibrarian.net/173841617/init-system-helpers_1.18_all.deb">init-system-helpers_1.18_all.deb</a>
+                  (12.3 KiB)
+                
+              </li>
+            </ul>
+        </div>
+      </div>
+      <!-- No build and no downloadable files -->
+      
+    </div><!--portlet-->
+  </div><!--yui-u-->
+
+  </div><!--yui-g-->
+
+
+  <style>#relationships div {padding-top:0.5em;}</style>
+  <div class="yui-g">
+  <div class="portlet" id="relationships">
+
+    <h2>Package relationships</h2>
+
+    <div class="first yui-u" id="portlet-depends">
+
+  <dl id="depends">
+    <dt>Depends on:</dt>
+    
+  <ul>
+    <li>
+       
+         <a href="https://launchpad.net/ubuntu/utopic/i386/perl">
+            perl
+            
+         </a>
+       
+       
+    </li>
+  </ul>
+
+
+  </dl>
+
+</div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="first yui-u" id="portlet-breaks">
+
+  <dl id="breaks">
+    <dt>Breaks:</dt>
+    
+  <ul>
+    <li>
+       
+         <a href="https://launchpad.net/ubuntu/utopic/i386/systemd">
+            systemd
+            
+              (&lt;&lt;
+               44-12)
+            
+         </a>
+       
+       
+    </li>
+  </ul>
+
+
+  </dl>
+
+</div>
+
+
+  </div><!--portlet-->
+  </div><!--yui-g-->
+
+</div>
+            
+            
+          </div><!-- yui-b -->
+        </div><!-- yui-main -->
+
+        
+          <!-- yui-b side -->
+        
+      <!-- yui-t4 -->
+
+      
+  <div id="footer" class="footer">
+    <div class="lp-arcana">
+        <div class="lp-branding">
+          <a href="https://launchpad.net/"><img src="/@@/launchpad-logo-and-name-hierarchy.png" alt="Launchpad" /></a>
+          &nbsp;&bull;&nbsp;
+          <a href="https://launchpad.net/+tour">Take the tour</a>
+          &nbsp;&bull;&nbsp;
+          <a href="https://help.launchpad.net/">Read the guide</a>
+          &nbsp;
+          <form id="globalsearch" method="get"
+                accept-charset="UTF-8"
+                action="https://launchpad.net/+search">
+            <input type="search" id="search-text" name="field.text" />
+            <input type="image" src="/@@/search" style="vertical-align:5%" alt="Search Launchpad" />
+          </form>
+        </div>
+        
+  
+
+    </div>
+
+    <div class="colophon">
+      &copy; 2004-2016
+      <a href="http://canonical.com/">Canonical&nbsp;Ltd.</a>
+      &nbsp;&bull;&nbsp;
+      <a href="https://launchpad.net/legal">Terms of use</a>
+      &nbsp;&bull;&nbsp;
+      <a href="/feedback">Contact Launchpad Support</a>
+      
+      &nbsp;&bull;&nbsp;
+      <a href="http://blog.launchpad.net/">Blog</a>
+      
+	&nbsp;&bull;&nbsp;
+	<a href="http://www.canonical.com/about-canonical/careers">Careers</a>
+      
+      &nbsp;&bull;&nbsp;
+      <a href="https://twitter.com/launchpadstatus">System status</a>
+      <span id="lp-version">
+      &nbsp;&bull;&nbsp;
+        r17995
+        
+        
+        (<a href="https://dev.launchpad.net/">Get the code!</a>)
+      </span>
+    </div>
+  </div>
+
+    </div><!-- yui-d0-->
+
+    
+  
+  
+  <script id="json-cache-script">LP.cache = {"related_features": {}};</script>
+
+    
+  
+
+    
+  </body>
+
+
+  <!--
+    Facet name: overview
+    Page type: main_only
+    Has global search: True
+    Has application tabs: True
+    Has side portlets: False
+
+    At least 27 queries/external actions issued in 0.20 seconds
+
+    Features: {'app.mainsite_only.canonical_url': None, 'baselayout.careers_link.disabled': None, 'hard_timeout': u'5000', 'profiling.enabled': None, 'js.yui_version': None, 'visible_render_time': None}
+
+    r17995
+
+    -->
+
+</html>
+

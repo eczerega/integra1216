@@ -30,7 +30,7 @@ def ApiBodegaGetSku(request)
 end
 
 
-=begin
+begin
 def stock(sku, cantidad)
   data = ApiBodegaGetAlmacenes('')
   @almacenes = []
@@ -50,7 +50,7 @@ def stock(sku, cantidad)
      end
 
   end
-  #puts contador
+  puts contador
   if contador >= cantidad
     return true
   else
@@ -58,7 +58,7 @@ def stock(sku, cantidad)
   end
 
 end
-=end
+end
 puts ApiBodegaGetAlmacenes('')
-#puts stock('47',86)
+puts stock('51',86)
 
