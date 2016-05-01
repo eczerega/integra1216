@@ -1,0 +1,81 @@
+var app = angular
+    .module('taller',
+    [
+        'ngMaterial',
+        'duParallax',
+        'ui.router',
+        'angular-loading-bar', 
+        'ngAnimate',
+        'infinite-scroll',
+        'ngAnimate',
+        'tallerDirectives'
+    ]
+);
+
+
+app.config(function(
+                    $stateProvider,
+                    $urlRouterProvider
+                )
+                {
+                $urlRouterProvider.otherwise('/dashboard');
+                $stateProvider
+                    .state('home', {
+                       url: "/casa",
+                       template:'ASDASDASD'
+                    })
+
+                    .state('dashboard', {
+                      url: '/dashboard',
+                      views: {
+                        '': {
+                          templateUrl: '/dashboard'
+                        },
+                        'nav@home': {
+                          template: '"<h1>HELLO2!</h1>"'
+                        },
+                        'body@home': {
+                          template: '"<h1>HELLO3!</h1>"'
+                        },
+                        'footer@home': {
+                          template: '"<h1>HELLO4!</h1>"'
+                        }
+                      }
+                    })
+
+                    .state('charts', {
+                      url: '/charts',
+                      templateUrl: '/charts'
+                    })
+
+                    .state('testing', {
+                      url: '/testing',
+                      templateUrl: '/testing'
+                    })
+                    .state('orders', {
+                      url: '/orders',
+                      templateUrl: '/orders'
+                    })
+                    .state('cellar', {
+                      url: '/cellar',
+                      templateUrl: '/cellar'
+                    })
+                    .state('api', {
+                      url: '/api',
+                      templateUrl: '/api'
+                    })
+                    .state('documentation', {
+                      url: '/documentation',
+                      templateUrl: '/documentation'
+                    });
+                }
+
+
+        );
+
+
+app
+.controller('MainCtrl',function($scope,$rootScope, $state){
+        //alert('asd');
+            $scope.vari="ASDASD";
+});

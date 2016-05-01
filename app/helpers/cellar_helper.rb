@@ -1,0 +1,2 @@
+module CellarHelper
+end
