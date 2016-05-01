@@ -13,6 +13,8 @@ Rails.application.routes.draw do
   get 'cellar' => 'cellar#index'
   get 'api' => 'api#index'
   get 'documentation' => 'documentation#index'
+  get 'api/consultar/:sku' => 'api#got_stock'
+
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'

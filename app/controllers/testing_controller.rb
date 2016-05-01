@@ -59,7 +59,6 @@ class TestingController < ApplicationController
 	def index
 		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
 		@data = get_almacenes_id
-
 		@all_skus=all_skus
 	end
 
