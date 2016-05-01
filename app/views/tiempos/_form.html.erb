@@ -1,0 +1,49 @@
+<%= form_for(@tiempo) do |f| %>
+  <% if @tiempo.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@tiempo.errors.count, "error") %> prohibited this tiempo from being saved:</h2>
+
+      <ul>
+      <% @tiempo.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :SKU %><br>
+    <%= f.text_field :SKU %>
+  </div>
+  <div class="field">
+    <%= f.label :Descripción %><br>
+    <%= f.text_field :Descripción %>
+  </div>
+  <div class="field">
+    <%= f.label :Tipo %><br>
+    <%= f.text_field :Tipo %>
+  </div>
+  <div class="field">
+    <%= f.label :Grupo_Proyecto %><br>
+    <%= f.number_field :Grupo_Proyecto %>
+  </div>
+  <div class="field">
+    <%= f.label :Unidades %><br>
+    <%= f.text_field :Unidades %>
+  </div>
+  <div class="field">
+    <%= f.label :Costo_produccion_unitario %><br>
+    <%= f.number_field :Costo_produccion_unitario %>
+  </div>
+  <div class="field">
+    <%= f.label :Lote_Produccion %><br>
+    <%= f.number_field :Lote_Produccion %>
+  </div>
+  <div class="field">
+    <%= f.label :Tiempo_Medio_Producción %><br>
+    <%= f.number_field :Tiempo_Medio_Producción %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

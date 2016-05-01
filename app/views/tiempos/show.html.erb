@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Sku:</strong>
+  <%= @tiempo.SKU %>
+</p>
+
+<p>
+  <strong>Descripción:</strong>
+  <%= @tiempo.Descripción %>
+</p>
+
+<p>
+  <strong>Tipo:</strong>
+  <%= @tiempo.Tipo %>
+</p>
+
+<p>
+  <strong>Grupo proyecto:</strong>
+  <%= @tiempo.Grupo_Proyecto %>
+</p>
+
+<p>
+  <strong>Unidades:</strong>
+  <%= @tiempo.Unidades %>
+</p>
+
+<p>
+  <strong>Costo produccion unitario:</strong>
+  <%= @tiempo.Costo_produccion_unitario %>
+</p>
+
+<p>
+  <strong>Lote produccion:</strong>
+  <%= @tiempo.Lote_Produccion %>
+</p>
+
+<p>
+  <strong>Tiempo medio producción:</strong>
+  <%= @tiempo.Tiempo_Medio_Producción %>
+</p>
+
+<%= link_to 'Edit', edit_tiempo_path(@tiempo) %> |
+<%= link_to 'Back', tiempos_path %>

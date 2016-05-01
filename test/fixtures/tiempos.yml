@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  SKU: MyString
+  Descripción: MyString
+  Tipo: MyString
+  Grupo_Proyecto: 1
+  Unidades: MyString
+  Costo_produccion_unitario: 1
+  Lote_Produccion: 1
+  Tiempo_Medio_Producción: 1
+
+two:
+  SKU: MyString
+  Descripción: MyString
+  Tipo: MyString
+  Grupo_Proyecto: 1
+  Unidades: MyString
+  Costo_produccion_unitario: 1
+  Lote_Produccion: 1
+  Tiempo_Medio_Producción: 1

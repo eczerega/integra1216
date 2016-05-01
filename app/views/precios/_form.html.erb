@@ -1,0 +1,29 @@
+<%= form_for(@precio) do |f| %>
+  <% if @precio.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@precio.errors.count, "error") %> prohibited this precio from being saved:</h2>
+
+      <ul>
+      <% @precio.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :SKU %><br>
+    <%= f.text_field :SKU %>
+  </div>
+  <div class="field">
+    <%= f.label :Descripción %><br>
+    <%= f.text_field :Descripción %>
+  </div>
+  <div class="field">
+    <%= f.label :Precio_Unitario %><br>
+    <%= f.number_field :Precio_Unitario %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

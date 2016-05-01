@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  SKU: MyString
+  Descripción: MyString
+  Precio_Unitario: 1
+
+two:
+  SKU: MyString
+  Descripción: MyString
+  Precio_Unitario: 1

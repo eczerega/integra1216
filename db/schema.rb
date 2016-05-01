@@ -11,10 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160501181500) do
+ActiveRecord::Schema.define(version: 20160501232047) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "costos", force: :cascade do |t|
+    t.string   "SKU"
+    t.string   "Descripcion"
+    t.integer  "Lote"
+    t.string   "Unidad"
+    t.string   "SKU_Ingrediente"
+    t.string   "Ingrediente"
+    t.integer  "Requerimiento"
+    t.integer  "Precio_Ingrediente"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
 
   create_table "oc_rcibidas", force: :cascade do |t|
     t.string   "id_dev"
@@ -52,6 +65,14 @@ ActiveRecord::Schema.define(version: 20160501181500) do
     t.datetime "updated_at",     null: false
   end
 
+  create_table "precios", force: :cascade do |t|
+    t.string   "SKU"
+    t.string   "Descripción"
+    t.integer  "Precio_Unitario"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
   create_table "produccions", force: :cascade do |t|
     t.string   "id_dev"
     t.string   "created_at_dev"
@@ -65,6 +86,19 @@ ActiveRecord::Schema.define(version: 20160501181500) do
     t.text     "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "tiempos", force: :cascade do |t|
+    t.string   "SKU"
+    t.string   "Descripción"
+    t.string   "Tipo"
+    t.integer  "Grupo_Proyecto"
+    t.string   "Unidades"
+    t.integer  "Costo_produccion_unitario"
+    t.integer  "Lote_Produccion"
+    t.integer  "Tiempo_Medio_Producción"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
   end
 
 end

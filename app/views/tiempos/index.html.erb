@@ -1,0 +1,41 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Tiempos</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Sku</th>
+      <th>Descripción</th>
+      <th>Tipo</th>
+      <th>Grupo proyecto</th>
+      <th>Unidades</th>
+      <th>Costo produccion unitario</th>
+      <th>Lote produccion</th>
+      <th>Tiempo medio producción</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @tiempos.each do |tiempo| %>
+      <tr>
+        <td><%= tiempo.SKU %></td>
+        <td><%= tiempo.Descripción %></td>
+        <td><%= tiempo.Tipo %></td>
+        <td><%= tiempo.Grupo_Proyecto %></td>
+        <td><%= tiempo.Unidades %></td>
+        <td><%= tiempo.Costo_produccion_unitario %></td>
+        <td><%= tiempo.Lote_Produccion %></td>
+        <td><%= tiempo.Tiempo_Medio_Producción %></td>
+        <td><%= link_to 'Show', tiempo %></td>
+        <td><%= link_to 'Edit', edit_tiempo_path(tiempo) %></td>
+        <td><%= link_to 'Destroy', tiempo, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Tiempo', new_tiempo_path %>

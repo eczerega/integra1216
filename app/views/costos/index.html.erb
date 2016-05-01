@@ -1,0 +1,45 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Costos</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Sku</th>
+      <th>Descripcion</th>
+      <th>Lote</th>
+      <th>Unidad</th>
+      <th>Sku ingrediente</th>
+      <th>Ingrediente</th>
+      <th>Requerimiento</th>
+      <th>Unidad</th>
+      <th>Ingrediente</th>
+      <th>Precio ingrediente</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @costos.each do |costo| %>
+      <tr>
+        <td><%= costo.SKU %></td>
+        <td><%= costo.Descripcion %></td>
+        <td><%= costo.Lote %></td>
+        <td><%= costo.Unidad %></td>
+        <td><%= costo.SKU_Ingrediente %></td>
+        <td><%= costo.Ingrediente %></td>
+        <td><%= costo.Requerimiento %></td>
+        <td><%= costo.Unidad %></td>
+        <td><%= costo.Ingrediente %></td>
+        <td><%= costo.Precio_Ingrediente %></td>
+        <td><%= link_to 'Show', costo %></td>
+        <td><%= link_to 'Edit', edit_costo_path(costo) %></td>
+        <td><%= link_to 'Destroy', costo, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Costo', new_costo_path %>

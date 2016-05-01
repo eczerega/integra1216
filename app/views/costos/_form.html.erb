@@ -1,0 +1,57 @@
+<%= form_for(@costo) do |f| %>
+  <% if @costo.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@costo.errors.count, "error") %> prohibited this costo from being saved:</h2>
+
+      <ul>
+      <% @costo.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :SKU %><br>
+    <%= f.text_field :SKU %>
+  </div>
+  <div class="field">
+    <%= f.label :Descripcion %><br>
+    <%= f.text_field :Descripcion %>
+  </div>
+  <div class="field">
+    <%= f.label :Lote %><br>
+    <%= f.number_field :Lote %>
+  </div>
+  <div class="field">
+    <%= f.label :Unidad %><br>
+    <%= f.text_field :Unidad %>
+  </div>
+  <div class="field">
+    <%= f.label :SKU_Ingrediente %><br>
+    <%= f.text_field :SKU_Ingrediente %>
+  </div>
+  <div class="field">
+    <%= f.label :Ingrediente %><br>
+    <%= f.text_field :Ingrediente %>
+  </div>
+  <div class="field">
+    <%= f.label :Requerimiento %><br>
+    <%= f.number_field :Requerimiento %>
+  </div>
+  <div class="field">
+    <%= f.label :Unidad %><br>
+    <%= f.text_field :Unidad %>
+  </div>
+  <div class="field">
+    <%= f.label :Ingrediente %><br>
+    <%= f.text_field :Ingrediente %>
+  </div>
+  <div class="field">
+    <%= f.label :Precio_Ingrediente %><br>
+    <%= f.number_field :Precio_Ingrediente %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

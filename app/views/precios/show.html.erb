@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Sku:</strong>
+  <%= @precio.SKU %>
+</p>
+
+<p>
+  <strong>Descripción:</strong>
+  <%= @precio.Descripción %>
+</p>
+
+<p>
+  <strong>Precio unitario:</strong>
+  <%= @precio.Precio_Unitario %>
+</p>
+
+<%= link_to 'Edit', edit_precio_path(@precio) %> |
+<%= link_to 'Back', precios_path %>

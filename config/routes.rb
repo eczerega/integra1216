@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  resources :precios
+  resources :costos
+  resources :tiempos
   resources :produccions
   resources :oc_recibidas
   resources :oc_rcibidas
