@@ -30,3 +30,7 @@ on_worker_boot do
   ActiveRecord::Base.establish_connection(YAML.load_file("#{app_dir}/config/database.yml")[rails_env])
 end
 =end
+#RAILS_ENV=production rake assets:precompile
+#sudo stop puma-manager
+#sudo start puma-manager
+#sudo service nginx restart
