@@ -25,16 +25,23 @@ class TestingController < ApplicationController
 		return res.body		
 	end
 
+	def get_almacenes_id
+		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		@data=Array.new
+		@all_data.each_line do |line|
+			JSON.parse(line).each do |data_value|
+				@data.push(data_value["_id"])
+			end
+		end
+		return @data
+	end
+
+
+
+
 	def index
 		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
-		@all_data.each_line do |line|
-			@data=''
-			JSON.parse(line).each do |data_value|
-				@data += data_value["_id"]+' , '
-			end
-			@data = @data.chop.chop
-		end
-	  #@response = JSON.parse RestClient.get data_ur_almacenes, {:Authorization => @hashi}
+		@data = get_almacenes_id
 	end
 
 end
