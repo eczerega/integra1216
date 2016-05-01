@@ -48,6 +48,7 @@ class TestingController < ApplicationController
 		@almacenes.each do |almacen|
 			@all_skus.push(getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId='+almacen, 'GET'+almacen, ''))
 		end
+		return @all_skus
 	end
 
 	def sku_by_almacen_id(almacen_id)
@@ -58,6 +59,7 @@ class TestingController < ApplicationController
 	def index
 		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
 		@data = get_almacenes_id
+
 		@all_skus=all_skus
 	end
 
