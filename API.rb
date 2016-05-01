@@ -5,14 +5,42 @@ require 'cgi'
 require 'openssl'
 require 'hmac-sha1'
 require 'json'
+require 'net/http'
 #require 'digest/hmac'
 
 
 
 #permite generar el hash para las distintas autorizaciones, lo retorna
 def generateHash (contenidoSignature)
-  return Base64.encode64((HMAC::SHA1.new('akVf0btGVOwkhvI') << contenidoSignature).digest).strip
+    encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+    return encoded_string
 end
+
+def getJSONData(url_req)
+    @hashi = 'INTEGRACION grupo12:'+generateHash('GET').to_s
+    url = URI.parse(url_req)
+    req = Net::HTTP::Get.new(url.to_s)
+    req['Authorization'] = @hashi
+    res = Net::HTTP.start(url.host, url.port) {|http|
+      http.request(req)
+    }
+
+    return res.body
+end
+
+def putJSONData(url_req, params)
+    @hashi = 'INTEGRACION grupo12:'+generateHash('PUT').to_s
+    puts @hashi
+    url = URI.parse(url_req)
+    req = Net::HTTP::Put.new(url.to_s)
+    req['Authorization'] = @hashi
+    req['Params'] = params
+    res = Net::HTTP.start(url.host, url.port) {|http|
+      http.request(req)
+    }
+    return res.body   
+end
+
 
 
 def ApiBodegaGetAlmacenes(request)
@@ -29,6 +57,15 @@ def ApiBodegaGetSku(request)
   response = JSON.parse RestClient.get "http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId="+request, {:Authorization => @hashi_get}
   #puts response
   return response
+end
+
+def getInfoFromJSON(input,field)
+  @data=Array.new
+    JSON.parse(input).each do |data_value|
+      @data.push(data_value[field])
+    end
+
+  return @data[0]
 end
 
 def ApiProducirMp(sku, num_batch)
@@ -54,17 +91,20 @@ def ApiProducirMp(sku, num_batch)
     url_bodega = "http://integracion-2016-dev.herokuapp.com/bodega/"
     url_banco = "http://mare.ing.puc.cl/banco/"
 
-    response = JSON.parse RestClient.get url_banco+"cuenta/"+"571262c3a980ba030058ab65", {:Authorization => @hashi_get}
+    @response = getJSONData(url_banco+"cuenta/571262c3a980ba030058ab65")
 
-    saldo = response[0]["saldo"]
+    saldo = getInfoFromJSON(@response,"saldo")
     puts saldo
 
     if saldo >= costo_prod
-      response2 = JSON.parse RestClient.get url_bodega+"fabrica/getCuenta", {:Authorization => @hashi_get}
-      cuenta_id = response2["cuentaId"]
+      @response2 = getJSONData(url_bodega+"fabrica/getCuenta")
+      puts @response2
+
+      cuenta_id = getInfoFromJSON(@response2,"cuenta_id");
       puts cuenta_id
-      puts RestClient.put url_banco+"trx", {:Authorization => @hashi_get, :Params => {"monto":costo_prod,"origen":"571262c3a980ba030058ab65","destino":"cuenta_id"}}
-      response3 = JSON.parse RestClient.put url_banco+"trx", {:Authorization => @hashi_get, :Params => {"monto":costo_prod,"origen":"571262c3a980ba030058ab65","destino":"cuenta_id"}}
+
+      #puts RestClient.put url_banco+"trx", {:Authorization => @hashi_get, :Params => {"monto":costo_prod,"origen":"571262c3a980ba030058ab65","destino":"cuenta_id"}}
+      #response3 = JSON.parse RestClient.put url_banco+"trx", {:Authorization => @hashi_get, :Params => {"monto":costo_prod,"origen":"571262c3a980ba030058ab65","destino":"cuenta_id"}}
     else
       puts "No hay saldo suficiente para producir"
     end 
