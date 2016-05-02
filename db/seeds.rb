@@ -45,7 +45,7 @@ File.open("./init/precio_venta.csv", "r") do |f|
 				 Descripción: contenido[1].to_s,
 				 Precio_Unitario: contenido[2].to_i,
 			)
-
+			SkuStock.create(SKU: contenido[0].to_s, stock: 0)
 	end
 end
 

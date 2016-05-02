@@ -1,0 +1,2 @@
+module SkuStocksHelper
+end

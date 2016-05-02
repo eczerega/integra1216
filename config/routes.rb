@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :sku_stocks
   resources :precios
   resources :costos
   resources :tiempos
@@ -18,7 +19,7 @@ Rails.application.routes.draw do
   get 'documentation' => 'documentation#index'
   get 'api/consultar/:sku' => 'api#got_stock'
   put 'oc/crear'=> 'oc_recibidas#crear_oc_api'
-
+  post 'api/oc/recibir/:idoc' => 'api#gestionar_oc'
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
