@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get 'api' => 'api#index'
   get 'documentation' => 'documentation#index'
   get 'api/consultar/:sku' => 'api#got_stock'
+  put 'oc/crear'=> 'oc_recibidas#crear_oc_api'
 
 
   # You can have the root of your site routed with "root"

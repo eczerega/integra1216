@@ -8,6 +8,8 @@ class ApiController < ApplicationController
 			return encoded_string
 		end
 
+
+#B2B 1-----------------------------------------------------
 		def getJSONData(url_req, url_data, params)
 			@hashi = 'INTEGRACION grupo12:'+generateHash(url_data).to_s
 			puts @hashi
@@ -73,6 +75,11 @@ class ApiController < ApplicationController
           format.js
       end
 	end
+#B2B 1 FIN-----------------------------------------------------------------------
+
+
+
+
 
 
 	def index
