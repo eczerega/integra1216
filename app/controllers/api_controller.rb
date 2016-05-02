@@ -9,6 +9,24 @@ class ApiController < ApplicationController
 		end
 skip_before_filter :verify_authenticity_token
 
+#Métodos Felipe, Javiera
+
+
+  def generar_factura
+    return 'genero factura'
+  end
+
+  def generar_materia_prima
+    return 'genero materia prima'
+  end
+
+
+#END
+
+
+
+
+
 #B2B 1-----------------------------------------------------
 		def getJSONData(url_req, url_data, params)
 			@hashi = 'INTEGRACION grupo12:'+generateHash(url_data).to_s
@@ -75,6 +93,30 @@ skip_before_filter :verify_authenticity_token
           format.js
       end
 	end
+
+	def got_stock_internal(given_sku)
+		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		@data = get_almacenes_id
+		@all_skus=all_skus
+		@response
+		@given_id = given_sku
+		@cantidad_total = 0
+		@all_skus.each do |sku|
+			@line_json = JSON.parse(sku)
+			begin
+				@sku_id=@line_json[0]["_id"]
+				@sku_total=@line_json[0]["total"].to_i
+				if @given_id == @sku_id
+					@cantidad_total+= @sku_total
+				end
+			rescue Exception => e
+			end
+		end
+      return @cantidad_total.to_i
+
+	end
+
+
 #B2B 1 FIN-----------------------------------------------------------------------
 
 
@@ -128,10 +170,21 @@ skip_before_filter :verify_authenticity_token
 
 		#REVISO SI SE PRODUCE
 		if seProduce==true
-			respond_to do |format|
-			  format.html {}
-			  format.json { render :json => @response }
-			  format.js
+		#REVISO SI HAY STOCK
+		@cantidad= got_stock_internal(@oc_sku)
+			if @cantidad.to_i >= @oc_cantidad.to_i
+				respond_to do |format|
+				  format.html {}
+				  format.json { render :json => @response }
+				  format.js
+				end
+			else
+				#ANULAR OC
+				respond_to do |format|
+				  format.html {}
+				  format.json { render :json => "error: Sin stock".to_json }
+				  format.js
+				end				
 			end
 		else
 			#ANULAR OC
@@ -143,6 +196,10 @@ skip_before_filter :verify_authenticity_token
 			end			
 		end
 		#END
+
+
+
+
 
 
 

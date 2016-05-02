@@ -88,6 +88,8 @@ skip_before_filter :verify_authenticity_token
 =end
 
 
+
+
   def oc_url(url_req, method)
     url = URI(url_req+'/'+method)
     http = Net::HTTP.new(url.host, url.port)
