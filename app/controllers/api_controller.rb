@@ -173,6 +173,10 @@ skip_before_filter :verify_authenticity_token
 		#REVISO SI HAY STOCK
 		@cantidad= got_stock_internal(@oc_sku)
 			if @cantidad.to_i >= @oc_cantidad.to_i
+
+				
+
+
 				respond_to do |format|
 				  format.html {}
 				  format.json { render :json => @response }
