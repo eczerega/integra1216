@@ -1,6 +1,6 @@
 class TiemposController < ApplicationController
   before_action :set_tiempo, only: [:show, :edit, :update, :destroy]
-
+    layout false
   # GET /tiempos
   # GET /tiempos.json
   def index

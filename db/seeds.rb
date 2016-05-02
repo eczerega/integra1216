@@ -17,19 +17,18 @@ File.open("./init/costos.csv", "r") do |f|
 	if ! line.valid_encoding?
 	  line = line.encode("UTF-16be", :invalid=>:replace, :replace=>"?").encode('UTF-8')
 	end	
-		lineas = line.split(';')
-		lineas.each do |contenido|
+		contenido = line.split(';')
 			Costo.create( 
-				 SKU: contenido[0],Descripcion: contenido[1],
-				 Lote: contenido[2],
-				 Unidad: contenido[3],
-				 SKU_Ingrediente: contenido[4],
-				 Ingrediente: contenido[5],
-				 Requerimiento: contenido[6],
-				 Unidad: contenido[7],
-				 Precio_Ingrediente: contenido[8]
+				 SKU: contenido[0].to_s,
+				 Descripcion: contenido[1].to_s,
+				 Lote: contenido[2].to_i,
+				 Unidad: contenido[3].to_s,
+				 SKU_Ingrediente: contenido[4].to_s,
+				 Ingrediente: contenido[5].to_s,
+				 Requerimiento: contenido[6].to_s,
+				 Unidad: contenido[7].to_s,
+				 Precio_Ingrediente: contenido[8].to_i
 			)
-		end
 
 	end
 end
@@ -39,15 +38,13 @@ File.open("./init/precio_venta.csv", "r") do |f|
 	if ! line.valid_encoding?
 	  line = line.encode("UTF-16be", :invalid=>:replace, :replace=>"?").encode('UTF-8')
 	end	
-		lineas = line.split(';')
-		lineas.each do |contenido|
+		contenido = line.split(';')
 			Precio.create( 
 
-				 SKU: contenido[0],
-				 Descripción: contenido[2],
-				 Precio_Unitario: contenido[3],
+				 SKU: contenido[0].to_s,
+				 Descripción: contenido[1].to_s,
+				 Precio_Unitario: contenido[2].to_i,
 			)
-		end
 
 	end
 end
@@ -60,19 +57,18 @@ File.open("./init/tiempos.csv", "r") do |f|
 	if ! line.valid_encoding?
 	  line = line.encode("UTF-16be", :invalid=>:replace, :replace=>"?").encode('UTF-8')
 	end	
-		lineas = line.split(';')
-		lineas.each do |contenido|
+		contenido = line.split(';')
 			Tiempo.create( 
-				 SKU: contenido[0],
-				 Descripción: contenido[2],
-				 Tipo: contenido[3],
-				 Grupo_Proyecto: contenido[4],
-				 Unidades: contenido[5],
-				 Costo_produccion_unitario: contenido[6],
-				 Lote_Produccion: contenido[7],
-				 Tiempo_Medio_Producción: contenido[8]
+				 SKU: contenido[0].to_s,
+				 Descripción: contenido[1].to_s,
+				 Tipo: contenido[2].to_s,
+				 Grupo_Proyecto: contenido[3].to_i,
+				 Unidades: contenido[4].to_s,
+				 Costo_produccion_unitario: contenido[5].to_i,
+				 Lote_Produccion: contenido[6].to_i,
+				 Tiempo_Medio_Producción: contenido[7].to_i
 			)
-		end
+
 
 	end
 end
