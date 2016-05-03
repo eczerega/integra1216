@@ -8,7 +8,7 @@ class CreateTiempos < ActiveRecord::Migration
       t.string :Unidades
       t.integer :Costo_produccion_unitario
       t.integer :Lote_Produccion
-      t.integer :Tiempo_Medio_Producción
+      t.float :Tiempo_Medio_Producción
 
       t.timestamps null: false
     end
