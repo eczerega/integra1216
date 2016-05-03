@@ -12,6 +12,13 @@ class OrdersController < ApplicationController
 		return encoded_string
 	end
 
+	def unix_time()
+		horas_ = params[:horas].to_i
+		puts (DateTime.now).strftime('%Q')
+
+		return (DateTime.now+horas_.hours).strftime('%Q')
+	end
+
 	def getJSONData(url_req, url_data, params)
 		@hashi = 'INTEGRACION grupo12:'+generateHash(url_data).to_s
 		puts @hashi
@@ -121,8 +128,7 @@ class OrdersController < ApplicationController
 	  stock = JSON.parse(getStockJson(grupo_proyecto,sku_))["stock"]
 	  puts stock
 
-	  #cambiar < !!!
-	  if stock.to_i<=cantidad_.to_i
+	  if stock.to_i>=cantidad_.to_i
 	  	oc_generada = {:canal=>"b2b",:cantidad=>cantidad_,:sku=>sku_,:cliente=>"12",:proveedor=>grupo_proyecto,:precioUnitario=>precio_producto,:fechaEntrega=>fecha_entrega.to_i,:notas=>"nada"}
 	  	jsonbody = JSON.generate(oc_generada)
 	  	puts jsonbody

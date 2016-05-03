@@ -18,7 +18,7 @@ Rails.application.routes.draw do
   get 'cellar' => 'cellar#index'
   get 'api' => 'api#index'
   get 'documentation' => 'documentation#index'
-  get 'api/consultar/:sku' => 'api#got_stock'
+  get 'api/consultar/:sku' => 'api#got_stock', defaults: {format: :json}
   put 'oc/crear'=> 'oc_recibidas#crear_oc_api'
   get 'api/pagos/recibir/:idtrx' => 'api#recibir_trx', defaults: {format: :json}
   get 'api/oc/recibir/:idoc' => 'api#gestionar_oc'
@@ -27,6 +27,7 @@ Rails.application.routes.draw do
 
   get 'api/test_felipe' => 'produccions#ApiProducirMp'
   get 'api/test_felipe2' => 'orders#comprar_producto'
+  get 'api/test_felipe3' => 'orders#unix_time'
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
 
