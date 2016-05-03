@@ -6,6 +6,7 @@ require 'openssl'
 require 'hmac-sha1'
 require 'json'
 require 'net/http'
+require 'time'
 #require 'digest/hmac'
 
 
@@ -189,6 +190,16 @@ def comprar_producto(sku,cantidad)
 
   puts hola
 end
+
+def fecha_UNIX_restar(horas)
+  fecha_entrega = (DateTime.now-horas.hours).strftime('%Q')
+  puts fecha_entrega
+end
+
+def fecha_UNIX_sumar(horas)
+  fecha_entrega = (DateTime.now+horas.hours).strftime('%Q')
+  puts fecha_entrega
+end
 =begin
 def stock(sku, cantidad)
   data = ApiBodegaGetAlmacenes('')
@@ -222,5 +233,5 @@ end
 #puts ApiProducirMp(7,1)
 #puts generateHash("PUT914571262c3a980ba030058ab65571262aea980ba030058a5d8")
 #puts stock('47',86)
-
-comprar_producto(1,1)
+puts fecha_UNIX_restar(24)
+#comprar_producto(1,1)

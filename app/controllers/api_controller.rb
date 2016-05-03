@@ -7,12 +7,12 @@ class ApiController < ApplicationController
 			encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
 			return encoded_string
 		end
-skip_before_filter :verify_authenticity_token
+	skip_before_filter :verify_authenticity_token
 
-#Métodos Felipe, Javiera
+	#Métodos Felipe, Javiera
 
 	def generar_factura(id_oc)
-	    url = URI("http://mare.ing.puc.cl/facturas/")
+	  url = URI("http://mare.ing.puc.cl/facturas/")
 	  http = Net::HTTP.new(url.host, url.port)
 
 	  request = Net::HTTP::Put.new(url)
@@ -41,7 +41,7 @@ skip_before_filter :verify_authenticity_token
   end
 
   def enviar_factura(id_factura, id_cliente)
-  	url = URI("http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/.:"+id_factura)
+  	url = URI("http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/"+id_factura)
 	http = Net::HTTP.new(url.host, url.port)
 
 	request = Net::HTTP::Post.new(url)
@@ -266,12 +266,14 @@ skip_before_filter :verify_authenticity_token
 		#REVISO SI SE PRODUCE
 		if seProduce==true
 		#REVISO SI HAY STOCK
-		@cantidad= got_stock_internal(@oc_sku)
+		@cantidad = got_stock_internal(@oc_sku)
+		puts @cantidad
 			if @cantidad.to_i >= @oc_cantidad.to_i
 				#ACEPTAR ORDEN COMPRA
-				aceptar_orden(@oc_id)
+				puts aceptar_orden(@oc_id)
 				#GENERAR
 				@factura_id = generar_factura(@oc_id)
+				puts @factura_id
 				#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
 				enviar_factura(@factura_id, @oc_cliente)
 

@@ -12,6 +12,13 @@ class OrdersController < ApplicationController
 		return encoded_string
 	end
 
+	def unix_time()
+		horas_ = params[:horas].to_i
+		puts (DateTime.now).strftime('%Q')
+
+		return (DateTime.now+horas_.hours).strftime('%Q')
+	end
+
 	def getJSONData(url_req, url_data, params)
 		@hashi = 'INTEGRACION grupo12:'+generateHash(url_data).to_s
 		puts @hashi
