@@ -148,7 +148,7 @@ skip_before_filter :verify_authenticity_token
 
 		@response = http.request(request)
 		#ACA REVISAMOS LA BDD Y ESAS WEAS
-		lsof -wni tcp:3000@response_json = JSON.parse(@response.body)
+		@response_json = JSON.parse(@response.body)
 		@response = @response.body
 		@oc_id = @response_json[0]["_id"]
 		@oc_notas = @response_json[0]["notas"]
