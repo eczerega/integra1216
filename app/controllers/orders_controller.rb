@@ -38,7 +38,6 @@ class OrdersController < ApplicationController
 	def getEnviarOC(num_grupo,oc_id)
 		url_req = "http://integra"+num_grupo.to_s+".ing.puc.cl/api/oc/recibir/"+oc_id+".json"
 
-		if 
 		url = URI.parse(url_req)
 		req = Net::HTTP::Get.new(url.to_s)
 		res = Net::HTTP.start(url.host, url.port) {|http|
