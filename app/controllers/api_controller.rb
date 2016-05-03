@@ -19,9 +19,16 @@ skip_before_filter :verify_authenticity_token
   end
 
   def aceptar_orden(id_oc)
-    @hashi_put = 'INTEGRACION grupo12:'+generateHash('POST'+id_oc).to_s
-    @response = JSON.parse RestClient.post "http://mare.ing.puc.cl/oc/recepcionar/"+id_oc, {:Authorization => @hashi_get}
-    return @response
+    @hashi = 'INTEGRACION grupo12:'+generateHash('POST'+id_oc).to_s
+    url_req = "http://mare.ing.puc.cl/oc/recepcionar/"+id_oc
+    url = URI.parse(url_req)
+	req = Net::HTTP::Post.new(url.to_s)
+	req['Authorization'] = @hashi
+	res = Net::HTTP.start(url.host, url.port) {|http|
+	  http.request(req)
+	}
+
+    return res.body
   end
 
   def enviar_factura(id_factura, id_cliente)
@@ -137,6 +144,7 @@ skip_before_filter :verify_authenticity_token
 
 	def gestionar_oc
 		@id_oc = params[:idoc]
+
 		begin
 		url = URI("http://mare.ing.puc.cl/oc/obtener/"+@id_oc)
 		http = Net::HTTP.new(url.host, url.port)
@@ -215,15 +223,6 @@ skip_before_filter :verify_authenticity_token
 			end			
 		end
 		#END
-
-
-
-
-
-
-
-
-
 		
 		rescue Exception => e
 			puts e.to_s

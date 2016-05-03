@@ -121,8 +121,7 @@ class OrdersController < ApplicationController
 	  stock = JSON.parse(getStockJson(grupo_proyecto,sku_))["stock"]
 	  puts stock
 
-	  #cambiar < !!!
-	  if stock.to_i<=cantidad_.to_i
+	  if stock.to_i>=cantidad_.to_i
 	  	oc_generada = {:canal=>"b2b",:cantidad=>cantidad_,:sku=>sku_,:cliente=>"12",:proveedor=>grupo_proyecto,:precioUnitario=>precio_producto,:fechaEntrega=>fecha_entrega.to_i,:notas=>"nada"}
 	  	jsonbody = JSON.generate(oc_generada)
 	  	puts jsonbody
