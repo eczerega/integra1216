@@ -21,7 +21,7 @@ Rails.application.routes.draw do
   get 'api/consultar/:sku' => 'api#got_stock', defaults: {format: :json}
   put 'oc/crear'=> 'oc_recibidas#crear_oc_api'
   get 'api/pagos/recibir/:idtrx' => 'api#recibir_trx', defaults: {format: :json}
-  get 'api/oc/recibir/:idoc' => 'api#gestionar_oc'
+  get 'api/oc/recibir/:idoc' => 'api#gestionar_oc', defaults: {format: :json}
   get 'api/facturas/recibir/:idfactura' => 'api#recibir_factura', defaults: {format: :json}
   get 'api/javi_prueba' => 'api#time'
 

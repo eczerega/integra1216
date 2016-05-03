@@ -226,6 +226,7 @@ class ApiController < ApplicationController
 	  end
 
 	def despachar(id_oc, sku, cantidad, producto, almacen_destino, precio)
+		price = precio.to_s
 		url = URI("http://integracion-2016-dev.herokuapp.com/bodega/moveStockBodega")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Post.new(url)
@@ -234,7 +235,7 @@ class ApiController < ApplicationController
 		request["content-type"] = 'application/json'
 		request["cache-control"] = 'no-cache'
 		request["postman-token"] = '7c74eec3-c1a9-1624-54f8-ece518f4775d'
-		request.body = "{\n    \"productoId\": \""+ producto +"\",\n    \"almacenId\": \""+ almacen_destino +"\",\n    \"oc\": \""+ id_oc +"\",\n    \"precio\": "+ precio +"\n}"
+		request.body = "{\n    \"productoId\": \""+ producto +"\",\n    \"almacenId\": \""+ almacen_destino +"\",\n    \"oc\": \""+ id_oc +"\",\n    \"precio\": "+ price+"\n}"
 		response = http.request(request)
 		puts response.read_body 
   	end
@@ -260,32 +261,35 @@ class ApiController < ApplicationController
  	end
 
 	def moverProductos(id_oc, almacenId, destinoId, sku, cantidad, faltante, precio)
-		@almacen_despacho = '571262aba980ba030058a5c7'
-		url = URI("http://integracion-2016-dev.herokuapp.com/bodega/stock?almacenId=" + almacenId + "&sku=" + sku + "&limit=199" )
-	    http = Net::HTTP.new(url.host, url.port)
-	    request = Net::HTTP::Get.new(url)
-	    @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET'+ almacenId + sku).to_s
-	    request["authorization"] = @hashi_get 
-	    request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
-	    request["cache-control"] = 'no-cache'
-	    request["postman-token"] = '2d38d414-b654-7ea2-d7f2-e1379efa0526'
-	    response = http.request(request)
-	    JSON.parse(response.body).each do |line|
-	    	@producto_a_mover = line["_id"].to_s
-	    	if almacenId != @almacen_despacho
-	    		mover_a_bodega(@producto_a_mover, @almacen_despacho)
-	     	end
-	     	despachar(id_oc, sku, cantidad, @producto_a_mover, destinoId, precio)
-	     	faltante -= 1
-		      if faltante == 0
-		        return faltante
-		      end
-		  	end
-		return faltante
-	end
+	    @almacen_despacho = '571262aba980ba030058a5c7'
+	    url = URI("http://integracion-2016-dev.herokuapp.com/bodega/stock?almacenId=" + almacenId + "&sku=" + sku + "&limit=199" )
+      http = Net::HTTP.new(url.host, url.port)
+      request = Net::HTTP::Get.new(url)
+      @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET'+ almacenId + sku).to_s
+      request["authorization"] = @hashi_get 
+      request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+      request["cache-control"] = 'no-cache'
+      request["postman-token"] = '2d38d414-b654-7ea2-d7f2-e1379efa0526'
+      response = http.request(request)
+      JSON.parse(response.body).each do |line|
+        @producto_a_mover = line["_id"].to_s
+        puts @producto_a_mover
+        if almacenId != @almacen_despacho
+          puts "moviendo a despacho..."
+          mover_a_bodega(@producto_a_mover, @almacen_despacho)
+        end
+        puts "despachando desde " + almacenId + " hacia " + destinoId + "..."
+        despachar(id_oc, sku, cantidad, @producto_a_mover, destinoId, precio)
+        faltante -= 1
+          if faltante == 0
+            return faltante
+          end
+        end
+	    return faltante
+	  end
 
 
-  	def preparar_despacho(id_oc, sku, cantidad, precio)
+  	def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
 
       #571262aba980ba030058a5c7 despacho
       #571262aa980ba030058a5c6 recepcion
@@ -293,11 +297,11 @@ class ApiController < ApplicationController
       #571262aba980ba030058a5c8 otra
       #571262aba980ba030058a5d6 otra
       almacen_despacho = '571262aba980ba030058a5c7'
-      almacen_destino = ''
       stock_en_despacho = contarProductos(almacen_despacho, sku)
       if cantidad <= stock_en_despacho
         puts "listos para despachar"
-        faltante = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, faltante, precio)
+        faltante = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, cantidad, precio)
+
       else
         puts "debemos mover cosas"
         @mis_almacenes = ["571262aba980ba030058a5d7", "571262aba980ba030058a5c6", "571262aba980ba030058a5c8", "571262aba980ba030058a5d6"]
@@ -310,7 +314,6 @@ class ApiController < ApplicationController
             break
           end
         end
-
         ###UNA VEZ CONFIRMADO MI STOCK, MUEVO LOS PRODUCTOS PARA EL DESPACHO
         if cantidad <= stock_otras_bodegas + stock_en_despacho
           faltante = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, faltante, precio)
@@ -327,7 +330,7 @@ class ApiController < ApplicationController
           ###NO SE PUEDE DESPACHAR
         end
       end 
-  	end
+    end
 
 
 
@@ -473,48 +476,58 @@ class ApiController < ApplicationController
 			  format.json { render :json => my_hash}
 			  format.js
 			end
-		end
-
-		#REVISO MIS SKUS
-			@mis_sku = Precio.all
-			seProduce= false
-			@mis_sku.each do |sku|
-				puts sku.SKU
-				if sku.SKU==@oc_sku
-					seProduce = true
-					break
+		else
+			#REVISO MIS SKUS
+				@mis_sku = Precio.all
+				seProduce= false
+				@mis_sku.each do |sku|
+					puts sku.SKU
+					if sku.SKU==@oc_sku
+						seProduce = true
+						break
+					end
 				end
-			end
-		#FIN
+			#FIN
 
-		#REVISO SI SE PRODUCE
-		if seProduce==true
-		#REVISO SI HAY STOCK
-		@cantidad = got_stock_internal(@oc_sku)
-		puts @cantidad
-			if @cantidad.to_i >= @oc_cantidad.to_i
-				#RETORNAR {aceptado,idoc}
-				@response = {:aceptado => true, :idoc => @id_oc}
-				#ACEPTAR ORDEN COMPRA
-				puts aceptar_orden(@oc_id)
-				#GENERAR
-				@factura_id = generar_factura(@oc_id)
-				puts @factura_id
-				#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
-				enviar_factura(@factura_id, @oc_cliente)
-
-
-				###UNA VEZ CHEQUEADO EL PAGO, REALIZAMOS EL DESPACHO
-				preparar_despacho(@oc_id.to_s, @oc_sku, @oc_cantidad)
+			#REVISO SI SE PRODUCE
+			if seProduce==true
+				#REVISO SI HAY STOCK
+				@cantidad = got_stock_internal(@oc_sku)
+				puts @cantidad
+				if @cantidad.to_i >= @oc_cantidad.to_i
+					#RETORNAR {aceptado,idoc}
+					@response = {:aceptado => true, :idoc => @id_oc}
+					#ACEPTAR ORDEN COMPRA
+					puts aceptar_orden(@oc_id)
+					#GENERAR
+					@factura_id = generar_factura(@oc_id)
+					puts @factura_id
+					#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
+					#enviar_factura(@factura_id, @oc_cliente)
 
 
-				resp_json = {:aceptado => true, :idoc => @oc_id.to_s}.to_json
-				my_hash = JSON.parse(resp_json)
+					###UNA VEZ CHEQUEADO EL PAGO, REALIZAMOS EL DESPACHO
+					#preparar_despacho(@oc_id.to_s, @oc_sku, @oc_cantidad, @oc_precioUnitario, almacen_destino)
 
-				respond_to do |format|
-				  format.html {}
-				  format.json { render :json => my_hash}
-				  format.js
+
+					resp_json = {:aceptado => true, :idoc => @oc_id.to_s}.to_json
+					my_hash = JSON.parse(resp_json)
+
+					respond_to do |format|
+					  format.html {}
+					  format.json { render :json => my_hash}
+					  format.js
+					end
+				else
+					#ANULAR OC
+					resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
+					my_hash = JSON.parse(resp_json)
+
+					respond_to do |format|
+					  format.html {}
+					  format.json { render :json => my_hash}
+					  format.js
+					end			
 				end
 			else
 				#ANULAR OC
@@ -525,18 +538,8 @@ class ApiController < ApplicationController
 				  format.html {}
 				  format.json { render :json => my_hash}
 				  format.js
-				end			
+				end		
 			end
-		else
-			#ANULAR OC
-			resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
-			my_hash = JSON.parse(resp_json)
-
-			respond_to do |format|
-			  format.html {}
-			  format.json { render :json => my_hash}
-			  format.js
-			end		
 		end
 		#END
 		
