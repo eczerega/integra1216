@@ -42,21 +42,20 @@ def putJSONData(url_req, params)
 end
 
 def generar_factura(id_oc)
-    url = URI("http://mare.ing.puc.cl/facturas/")
-  http = Net::HTTP.new(url.host, url.port)
+      url = URI("http://mare.ing.puc.cl/facturas/")
+    http = Net::HTTP.new(url.host, url.port)
 
-  request = Net::HTTP::Put.new(url)
-  request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
-  request["authorization"] = 'INTEGRACION grupo12:'+generateHash('PUT'+id_oc).to_s
-  request["cache-control"] = 'no-cache'
-  request["postman-token"] = '09915d89-9455-3f0c-6eb1-407f29b4286d'
-  request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"oc\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001--"
+    request = Net::HTTP::Put.new(url)
+    request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+    request["authorization"] = 'INTEGRACION grupo12:'+generateHash('PUT'+id_oc).to_s
+    request["cache-control"] = 'no-cache'
+    request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"oc\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001--"
 
-  @response = http.request(request)
-  @response_json = JSON.parse(@response.body)
-  @factura_id = @response_json["_id"]
-  return @factura_id
-end
+    @response = http.request(request)
+    @response_json = JSON.parse(@response.body)
+    @factura_id = @response_json["_id"]
+    return @factura_id
+  end
 
   def aceptar_orden(id_oc)
     url = URI("http://mare.ing.puc.cl/oc/recepcionar/"+id_oc)
@@ -78,7 +77,6 @@ end
 
   request = Net::HTTP::Get.new(url)
   request["cache-control"] = 'no-cache'
-
   @response = http.request(request)
   @response_json = JSON.parse(@response.body)
   puts @response_json
@@ -90,4 +88,5 @@ enviar_factura("3",12)
 #puts aceptar_orden("57265e0f006ba10300bc4390")
 #puts 'INTEGRACION grupo12:'+generateHash('GET'+'57281872c1ff9b030001a2e4').to_s
 #puts stock('47',86)
-
+puts preparar_despacho('5728488cc1ff9b030001a5c3', '7', 105)
+#puts restaurar

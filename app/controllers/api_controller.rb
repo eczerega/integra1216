@@ -83,17 +83,17 @@ class ApiController < ApplicationController
 	return @response_json
   end
 
-  def anular_orden(id_oc)
+  def anular_orden(id_oc, respuesta)
   	url = URI("http://mare.ing.puc.cl/oc/anular/"+id_oc)
 	http = Net::HTTP.new(url.host, url.port)
-
 	request = Net::HTTP::Delete.new(url)
-	request["authorization"] = 'INTEGRACION grupo12:'+generateHash('DELETE'+id_oc).to_s
+	request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+	request["authorization"] = 'INTEGRACION grupo12cvrkpgZRptPWtoDFmyr9n3dtzfc='
 	request["cache-control"] = 'no-cache'
-
-	@response = http.request(request)
-	@response_json = JSON.parse(@response.body)
-	return @response_json
+	request["postman-token"] = '852f5544-3be3-d8f2-e8eb-24db50cfc6cc'
+	request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"anulacion\"\r\n\r\n"+ respuesta +"\r\n-----011000010111000001101001--"
+	response = http.request(request)
+	return response
   end
 
 
@@ -210,6 +210,108 @@ class ApiController < ApplicationController
 		  format.js
 		end
 	end
+
+	def mover_a_bodega(id_producto, id_almacen)
+      	url = URI("http://integracion-2016-dev.herokuapp.com/bodega/moveStock")
+	    http = Net::HTTP.new(url.host, url.port)
+	    request = Net::HTTP::Post.new(url)
+	    @hashi_get = 'INTEGRACION grupo12:'+generateHash('POST'+ id_producto + id_almacen).to_s
+	    request["authorization"] = @hashi_get
+	    request["content-type"] = 'application/json'
+	    request["cache-control"] = 'no-cache'
+	    request["postman-token"] = 'afdedc9a-5265-3c5b-971d-16c402393539'
+	    request.body = "{\n    \"almacenId\": \""+ id_almacen +"\",\n    \"productoId\": \""+id_producto+"\"\n}"
+	    response = http.request(request)
+	    #puts response.read_body
+	  end
+
+	def contarProductos(almacenId, sku)
+      url = URI("http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId="+almacenId)
+      http = Net::HTTP.new(url.host, url.port)
+      request = Net::HTTP::Get.new(url)
+      @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET'+ almacenId).to_s
+      request["authorization"] = @hashi_get
+      request["content-type"] = 'application/json'
+      request["cache-control"] = 'no-cache'
+      request["postman-token"] = '07cc8b55-6f45-f987-1c5a-0eb4f9648baa'
+      response = http.request(request)
+      puts response.body
+      total = 0
+      JSON.parse(response.body).each do |line|
+        if sku == line["_id"]
+          total += line["total"].to_i
+        end
+      end
+      return total
+ 	end
+
+	def iterarProductos(almacenId, sku, qty)
+    @almacen_despacho = '571262aba980ba030058a5c7'
+    url = URI("http://integracion-2016-dev.herokuapp.com/bodega/stock?almacenId=" + almacenId + "&sku=" + sku + "&limit=199" )
+    http = Net::HTTP.new(url.host, url.port)
+    request = Net::HTTP::Get.new(url)
+    @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET'+ almacenId + sku).to_s
+    request["authorization"] = @hashi_get 
+    request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+    request["cache-control"] = 'no-cache'
+    request["postman-token"] = '2d38d414-b654-7ea2-d7f2-e1379efa0526'
+    response = http.request(request)
+    JSON.parse(response.body).each do |line|
+      @producto_a_mover = line["_id"].to_s
+      mover_a_bodega(@producto_a_mover, @almacen_despacho)
+      qty -= 1
+	      if qty == 0
+	        return qty
+	      end
+	  end
+	  return qty
+	end
+
+	def despachar(id_oc, sku, cantidad)
+		###FALTA IMPLEMENTAR ESTE METODO
+  	end
+
+  	def preparar_despacho(id_oc, sku, cantidad)
+
+      #571262aba980ba030058a5c7 despacho
+      #571262aa980ba030058a5c6 recepcion
+      #571262aba980ba030058a5d7 pulmon
+      #571262aba980ba030058a5c8 otra
+      #571262aba980ba030058a5d6 otra
+      almacen_despacho = '571262aba980ba030058a5c7'
+      current_stock = contarProductos(almacen_despacho, sku)
+      if cantidad <= current_stock
+        puts "listos para despachar"
+        ###despachar()
+      else
+        puts "debemos mover cosas"
+        @mis_almacenes = ["571262aba980ba030058a5d7", "571262aba980ba030058a5c6", "571262aba980ba030058a5c8", "571262aba980ba030058a5d6"]
+        faltante = cantidad - current_stock
+        ###REVISO SI EN TODOS MIS ALMACENES TENGO STOCK
+        @mis_almacenes.each do |almacen|
+          faltante += contarProductos(almacen, sku)
+          if cantidad <= faltante + current_stock
+            break
+          end
+        end
+
+        ###UNA VEZ CONFIRMADO MI STOCK, MUEVO LOS PRODUCTOS PARA EL DESPACHO
+        if cantidad <= faltante + current_stock
+          @mis_almacenes.each do |almacen|
+            faltante = iterarProductos(almacen, sku, faltante)
+            puts 'faltan ' + faltante.to_s  
+            if faltante == 0
+              break
+            end
+          end
+          puts "despachamos!"
+          ###despachar()
+        else
+          ###NO SE PUEDE DESPACHAR
+        end
+      end 
+  	end
+
 
 
   end
@@ -347,8 +449,13 @@ class ApiController < ApplicationController
 		@oc_canal = @response_json[0]["canal"]
 		if @oc_proveedor != "12"
 			#ANULAR OC
-			error = "error: Proveedor " + @oc_proveedor + " inválido"
-			@response= error.to_json
+			resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
+			my_hash = JSON.parse(resp_json)
+			respond_to do |format|
+			  format.html {}
+			  format.json { render :json => my_hash}
+			  format.js
+			end
 		end
 
 		#REVISO MIS SKUS
@@ -380,34 +487,39 @@ class ApiController < ApplicationController
 				enviar_factura(@factura_id, @oc_cliente)
 
 
+				###UNA VEZ CHEQUEADO EL PAGO, REALIZAMOS EL DESPACHO
+				preparar_despacho(@oc_id.to_s, @oc_sku, @oc_cantidad)
+
+
+				resp_json = {:aceptado => true, :idoc => @oc_id.to_s}.to_json
+				my_hash = JSON.parse(resp_json)
+
 				respond_to do |format|
 				  format.html {}
-				  format.json { render :json => @response }
+				  format.json { render :json => my_hash}
 				  format.js
 				end
 			else
 				#ANULAR OC
-				anular_orden(@oc_id)
-
-				@response = {:aceptado => false, :idoc => @id_oc}
+				resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
+				my_hash = JSON.parse(resp_json)
 
 				respond_to do |format|
 				  format.html {}
-				  format.json { render :json => @response}
+				  format.json { render :json => my_hash}
 				  format.js
-				end				
+				end			
 			end
 		else
 			#ANULAR OC
-				anular_orden(@oc_id)
-				
-				@response = {:aceptado => false, :idoc => @id_oc}
+			resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
+			my_hash = JSON.parse(resp_json)
 
-				respond_to do |format|
-				  format.html {}
-				  format.json { render :json => @response}
-				  format.js
-				end				
+			respond_to do |format|
+			  format.html {}
+			  format.json { render :json => my_hash}
+			  format.js
+			end		
 		end
 		#END
 		
