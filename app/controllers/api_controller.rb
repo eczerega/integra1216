@@ -99,7 +99,7 @@ class ApiController < ApplicationController
 
   def recibir_factura()
   	@given_idfactura = params[:idfactura]
-
+  	
   	json_factura = getFacturaJSON(@given_idfactura)
   	puts json_factura
 
