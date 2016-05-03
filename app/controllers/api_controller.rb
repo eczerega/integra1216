@@ -11,27 +11,109 @@ skip_before_filter :verify_authenticity_token
 
 #Métodos Felipe, Javiera
 
-  def generar_factura(id_oc)
-    @hashi_put = 'INTEGRACION grupo12:'+generateHash('PUT'+id_oc).to_s
-    @response = JSON.parse RestClient.put "http://mare.ing.puc.cl/facturas/", {oc: id_oc}, {:Authorization => @hashi_get}
-    @factura_id = @response["_id"]
-    return @factura_id
-  end
+	def generar_factura(id_oc)
+	    url = URI("http://mare.ing.puc.cl/facturas/")
+	  http = Net::HTTP.new(url.host, url.port)
+
+	  request = Net::HTTP::Put.new(url)
+	  request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+	  request["authorization"] = 'INTEGRACION grupo12:'+generateHash('PUT'+id_oc).to_s
+	  request["cache-control"] = 'no-cache'
+	  request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"oc\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001--"
+
+	  @response = http.request(request)
+	  @response_json = JSON.parse(@response.body)
+	  @factura_id = @response_json["_id"]
+	  return @factura_id
+	end
 
   def aceptar_orden(id_oc)
-    @hashi_put = 'INTEGRACION grupo12:'+generateHash('POST'+id_oc).to_s
-    @response = JSON.parse RestClient.post "http://mare.ing.puc.cl/oc/recepcionar/"+id_oc, {:Authorization => @hashi_get}
-    return @response
+  	url = URI("http://mare.ing.puc.cl/oc/recepcionar/"+id_oc)
+	http = Net::HTTP.new(url.host, url.port)
+
+	request = Net::HTTP::Post.new(url)
+	request["authorization"] = 'INTEGRACION grupo12:'+generateHash('POST'+id_oc).to_s
+	request["cache-control"] = 'no-cache'
+
+	@response = http.request(request)
+	@response_json = JSON.parse(@response.body)
+	return @response_json
   end
 
   def enviar_factura(id_factura, id_cliente)
-    @response = JSON.parse RestClient.post "http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/.:"+id_factura
-    return @response
+  	url = URI("http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/.:"+id_factura)
+	http = Net::HTTP.new(url.host, url.port)
+
+	request = Net::HTTP::Post.new(url)
+	request["cache-control"] = 'no-cache'
+
+	@response = http.request(request)
+	@response_json = JSON.parse(@response.body)
+	return @response_json
   end
 
   def generar_materia_prima
     return 'genero materia prima'
   end
+
+  def recibir_trx
+  	#CHEQUEO SI TRANSFERENCIA SE EFECTUO
+  	@given_idtrx = params[:idtrx]
+  	@given_idfactura = params[:idfactura]
+
+  	#MONTO TRANSACCION
+    url = URI("http://mare.ing.puc.cl/banco/trx/"+@given_idtrx)
+	http = Net::HTTP.new(url.host, url.port)
+
+	request = Net::HTTP::Get.new(url)
+	request["authorization"] = 'INTEGRACION grupo12:'+generateHash('GET'+@given_idtrx).to_s
+	request["cache-control"] = 'no-cache'
+
+	@trx = http.request(request)
+	@trx_json = JSON.parse(@trx.body)
+
+  	@response =  {:validado => true, :trx => @trx_json }
+	@response = @response.to_json
+	responsejson = JSON.parse(@response)
+	json_array =  responsejson["trx"][0]
+	@monto_trx= json_array["monto"]
+
+  	#MONTO FACTURA
+	url = URI("http://mare.ing.puc.cl/facturas/"+@given_idfactura)
+
+	http = Net::HTTP.new(url.host, url.port)
+
+	request2 = Net::HTTP::Get.new(url)
+	request2["authorization"] = 'INTEGRACION grupo12:'+generateHash('GET'+@given_idfactura).to_s
+	request2["cache-control"] = 'no-cache'
+
+
+	@factura = http.request(request2)
+	@factura_array = JSON.parse(@factura.body)
+
+	@factura_json = JSON.parse(@factura_array[0].to_json)
+	@monto_factura =  @factura_json["total"]
+
+	if @monto_trx != @monto_factura
+		@response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'wrong amount of money' }
+
+      respond_to do |format|
+          format.html {}
+          format.json { render :json => @response_error.to_json }
+          format.js
+      end
+    else 
+    	@response_default =  {:default => "mensaje por default" }
+		respond_to do |format|		
+		  format.html {}
+		  format.json { render :json => @response_default.to_json }
+		  format.js
+		end
+	end
+
+
+  end
+
 
 #END
 
@@ -148,7 +230,7 @@ skip_before_filter :verify_authenticity_token
 
 		@response = http.request(request)
 		#ACA REVISAMOS LA BDD Y ESAS WEAS
-		lsof -wni tcp:3000@response_json = JSON.parse(@response.body)
+		@response_json = JSON.parse(@response.body)
 		@response = @response.body
 		@oc_id = @response_json[0]["_id"]
 		@oc_notas = @response_json[0]["notas"]
@@ -191,6 +273,7 @@ skip_before_filter :verify_authenticity_token
 				@factura_id = generar_factura(@oc_id)
 				#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
 				enviar_factura(@factura_id, @oc_cliente)
+
 
 				respond_to do |format|
 				  format.html {}

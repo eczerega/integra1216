@@ -42,19 +42,42 @@ def putJSONData(url_req, params)
 end
 
 def generar_factura(id_oc)
-  @hashi_put = 'INTEGRACION grupo12:'+generateHash('PUT'+id_oc).to_s
-  @response = JSON.parse RestClient.put "http://mare.ing.puc.cl/facturas/", {oc: id_oc}, {:Authorization => @hashi_get}
-  @factura_id = @response["_id"]
+    url = URI("http://mare.ing.puc.cl/facturas/")
+  http = Net::HTTP.new(url.host, url.port)
+
+  request = Net::HTTP::Put.new(url)
+  request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+  request["authorization"] = 'INTEGRACION grupo12:'+generateHash('PUT'+id_oc).to_s
+  request["cache-control"] = 'no-cache'
+  request["postman-token"] = '09915d89-9455-3f0c-6eb1-407f29b4286d'
+  request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"oc\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001--"
+
+  @response = http.request(request)
+  @response_json = JSON.parse(@response.body)
+  @factura_id = @response_json["_id"]
   return @factura_id
 end
 
-def aceptar_orden(id_oc)
-  @hashi_put = 'INTEGRACION grupo12:'+generateHash('POST'+id_oc).to_s
-  @response = JSON.parse RestClient.post "http://mare.ing.puc.cl/oc/recepcionar/"+id_oc, {:Authorization => @hashi_get}
-  return @response
-end
+  def aceptar_orden(id_oc)
+    url = URI("http://mare.ing.puc.cl/oc/recepcionar/"+id_oc)
+  http = Net::HTTP.new(url.host, url.port)
+
+  request = Net::HTTP::Post.new(url)
+  request["authorization"] = 'INTEGRACION grupo12:'+generateHash('POST'+id_oc).to_s
+  request["cache-control"] = 'no-cache'
+
+  @response = http.request(request)
+  @response_json = JSON.parse(@response.body)
+  return @response_json
+  end
+
+  def enviar_factura(id_factura, id_cliente)
+    @response = JSON.parse RestClient.post "http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/.:"+id_factura
+    return @response
+  end
 
 
-puts generar_factura("57265e0f006ba10300bc4390")
+#puts aceptar_orden("57265e0f006ba10300bc4390")
+puts 'INTEGRACION grupo12:'+generateHash('GET'+'57281872c1ff9b030001a2e4').to_s
 #puts stock('47',86)
 
