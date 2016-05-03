@@ -97,6 +97,7 @@ class OrdersController < ApplicationController
 
 	def index
 		@data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		
 		@data.each_line do |line|
 
 		end
@@ -130,7 +131,6 @@ class OrdersController < ApplicationController
 	  	response = putOCJSONData("/crear",jsonbody,"b2b"+cantidad_+sku_+"12")
 	  	oc_id = JSON.parse(response)["_id"]
 	  	puts oc_id
-
 	  else
 	  	puts "No hay stock suficiente de ese producto para comprar"
 	  end	  
@@ -140,4 +140,3 @@ class OrdersController < ApplicationController
       end
 	end
 end
-#rails g scaffold oc_recibidas id_dev:string created_at_dev:date canal:string sku:string cantidad:integer precio_unit:integer entrega_at:date despacho_at:date estado:string rechazo:string anulacion:string notas:string id_factura_dev:string
