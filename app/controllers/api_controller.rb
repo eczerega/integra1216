@@ -11,6 +11,16 @@ class ApiController < ApplicationController
 
 	#Métodos Felipe, Javiera
 
+	def time()
+		puts (DateTime.now+5).strftime('%Q')
+		@response_default =  {:time => (DateTime.now+5).strftime('%Q') }
+		respond_to do |format|		
+		  format.html {}
+		  format.json { render :json => @response_default.to_json }
+		  format.js
+		end
+	end
+
 	def generar_factura(id_oc)
 	  url = URI("http://mare.ing.puc.cl/facturas/")
 	  http = Net::HTTP.new(url.host, url.port)
@@ -40,15 +50,30 @@ class ApiController < ApplicationController
 	return @response_json
   end
 
+
+  def recibir_factura()
+  	@given_idfactura = params[:idfactura]
+
+	#HAPPY PATH RECIBIR FACTURA
+	@response_ok =  {:validado => true, :idfactura => @given_idfactura }
+	respond_to do |format|		
+	  format.html {}
+	  format.json { render :json => @response_ok.to_json }
+	  format.js
+	end
+  end
+
   def enviar_factura(id_factura, id_cliente)
   	url = URI("http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/"+id_factura)
+
 	http = Net::HTTP.new(url.host, url.port)
 
-	request = Net::HTTP::Post.new(url)
+	request = Net::HTTP::Get.new(url)
 	request["cache-control"] = 'no-cache'
 
 	@response = http.request(request)
 	@response_json = JSON.parse(@response.body)
+	puts @response_json
 	return @response_json
   end
 

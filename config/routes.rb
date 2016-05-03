@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   resources :oc_recibidas
   resources :oc_rcibidas
   resources :tasks
-  
+
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
   root 'home#index'
@@ -22,7 +22,8 @@ Rails.application.routes.draw do
   put 'oc/crear'=> 'oc_recibidas#crear_oc_api'
   get 'api/pagos/recibir/:idtrx' => 'api#recibir_trx'
   get 'api/oc/recibir/:idoc' => 'api#gestionar_oc'
-
+  get 'api/facturas/recibir/:idfactura' => 'api#recibir_factura', defaults: {format: :json}
+  get 'api/javi_prueba' => 'api#time'
 
   get 'api/test_felipe' => 'produccions#ApiProducirMp'
   get 'api/test_felipe2' => 'orders#comprar_producto'
