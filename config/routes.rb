@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   get 'documentation' => 'documentation#index'
   get 'api/consultar/:sku' => 'api#got_stock'
   put 'oc/crear'=> 'oc_recibidas#crear_oc_api'
+  get 'api/pagos/recibir/:idtrx' => 'api#recibir_trx'
   get 'api/oc/recibir/:idoc' => 'api#gestionar_oc'
 
 
