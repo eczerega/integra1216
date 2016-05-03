@@ -99,7 +99,7 @@ class ApiController < ApplicationController
 
   def recibir_factura()
   	@given_idfactura = params[:idfactura]
-
+  	
   	json_factura = getFacturaJSON(@given_idfactura)
   	puts json_factura
 
@@ -203,7 +203,7 @@ class ApiController < ApplicationController
       end
 
     else 
-    	@response_default =  {:default => "mensaje por default" }
+    	@response_default =  {:validado => true, :idtrx =>  @given_idtrx}
 		respond_to do |format|		
 		  format.html {}
 		  format.json { render :json => @response_default.to_json }
