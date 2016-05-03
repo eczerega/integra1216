@@ -101,7 +101,11 @@ skip_before_filter :verify_authenticity_token
 	@response = @response.to_json
 	responsejson = JSON.parse(@response)
 	json_array =  responsejson["trx"][0]
+	puts "TRANSACCION" + json_array.to_s + "\n"
 	@monto_trx= json_array["monto"]
+	@destino_trx = json_array["destino"]
+	puts "CUENTA DESTINO" + @destino_trx + "\n"
+
 
   	#MONTO FACTURA
 	url = URI("http://mare.ing.puc.cl/facturas/"+@given_idfactura)
@@ -117,16 +121,31 @@ skip_before_filter :verify_authenticity_token
 	@factura_array = JSON.parse(@factura.body)
 
 	@factura_json = JSON.parse(@factura_array[0].to_json)
+	puts "FACTURA" + @factura_json.to_s + "\n"
 	@monto_factura =  @factura_json["total"]
 
-	if @monto_trx != @monto_factura
-		@response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'wrong amount of money' }
+
+	@cuenta_banco = "571262c3a980ba030058ab65"
+
+	#EN ESTE CASO HAY QUE ESTABLECER POLITICA DE DEPOSITO POR CANTIDAD INCORRECTA
+	if @destino_trx != @cuenta_banco
+      @response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cuenta destino errónea' }
 
       respond_to do |format|
           format.html {}
           format.json { render :json => @response_error.to_json }
           format.js
       end
+	
+	elsif @monto_trx != @monto_factura
+	  @response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cantidad transferida errónea' }
+
+      respond_to do |format|
+          format.html {}
+          format.json { render :json => @response_error.to_json }
+          format.js
+      end
+
     else 
     	@response_default =  {:default => "mensaje por default" }
 		respond_to do |format|		
