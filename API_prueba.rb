@@ -84,9 +84,15 @@ def generar_factura(id_oc)
   end
 
 #puts (DateTime.now+5).strftime('%Q')
-enviar_factura("3",12)
+#enviar_factura("3",12)
 #puts aceptar_orden("57265e0f006ba10300bc4390")
 #puts 'INTEGRACION grupo12:'+generateHash('GET'+'57281872c1ff9b030001a2e4').to_s
 #puts stock('47',86)
-puts preparar_despacho('5728488cc1ff9b030001a5c3', '7', 105)
+#puts preparar_despacho('5728488cc1ff9b030001a5c3', '7', 105)
 #puts restaurar
+productoId = '5727b83afb10f70300bb82d8'
+direccion = 'asd'
+precio = '1307'
+almacenId = '571262aaa980ba030058a147'
+oc = '5728e8999fda6e030047091d'
+puts 'INTEGRACION grupo12:'+generateHash('POST'+ productoId + almacenId).to_s
