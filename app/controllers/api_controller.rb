@@ -7,12 +7,55 @@ class ApiController < ApplicationController
 			encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
 			return encoded_string
 		end
-skip_before_filter :verify_authenticity_token
+	skip_before_filter :verify_authenticity_token
 
-#Métodos Felipe, Javiera
+	#Métodos Felipe, Javiera
+
+	def time()
+		puts (DateTime.now+5).strftime('%Q')
+		@response_default =  {:time => (DateTime.now+5).strftime('%Q') }
+		respond_to do |format|		
+		  format.html {}
+		  format.json { render :json => @response_default.to_json }
+		  format.js
+		end
+	end
+
+	def getOCJSON(id_oc)
+		url = URI("http://mare.ing.puc.cl/oc/obtener/"+id_oc)
+
+		http = Net::HTTP.new(url.host, url.port)
+
+		request2 = Net::HTTP::Get.new(url)
+		request2["cache-control"] = 'no-cache'
+
+		@oc = http.request(request2)
+		@oc_array = JSON.parse(@oc.body)
+
+		@oc_json = JSON.parse(@oc_array[0].to_json)
+		
+		return @oc_json
+	end
+
+	def getFacturaJSON(id_fac)
+		url = URI("http://mare.ing.puc.cl/facturas/"+id_fac)
+
+		http = Net::HTTP.new(url.host, url.port)
+
+		request2 = Net::HTTP::Get.new(url)
+		request2["authorization"] = 'INTEGRACION grupo12:'+generateHash('GET'+id_fac).to_s
+		request2["cache-control"] = 'no-cache'
+
+		@factura = http.request(request2)
+		@factura_array = JSON.parse(@factura.body)
+
+		@factura_json = JSON.parse(@factura_array[0].to_json)
+		
+		return @factura_json
+	end
 
 	def generar_factura(id_oc)
-	    url = URI("http://mare.ing.puc.cl/facturas/")
+	  url = URI("http://mare.ing.puc.cl/facturas/")
 	  http = Net::HTTP.new(url.host, url.port)
 
 	  request = Net::HTTP::Put.new(url)
@@ -50,17 +93,55 @@ skip_before_filter :verify_authenticity_token
 	request["postman-token"] = '852f5544-3be3-d8f2-e8eb-24db50cfc6cc'
 	request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"anulacion\"\r\n\r\n"+ respuesta +"\r\n-----011000010111000001101001--"
 	response = http.request(request)
+	return response
+  end
+
+
+  def recibir_factura()
+  	@given_idfactura = params[:idfactura]
+
+  	json_factura = getFacturaJSON(@given_idfactura)
+  	puts json_factura
+
+  	oc_id = json_factura["oc"]
+  	puts oc_id
+  	bruto = json_factura["bruto"]
+  	puts bruto
+
+  	json_oc = getOCJSON(oc_id)
+  	puts json_oc
+
+  	coincide_total = false
+	coincide_cliente = false
+
+	if json_factura["total"]==json_oc["precioUnitario"]
+		coincide_total = true
+	end
+
+	if json_factura["cliente"]==json_oc["cliente"]
+		coincide_cliente = true
+	end
+
+	#HAPPY PATH RECIBIR FACTURA
+	@response_ok =  {:validado => coincide_cliente && coincide_total, :idfactura => @given_idfactura }
+	respond_to do |format|		
+	  format.html {}
+	  format.json { render :json => @response_ok.to_json }
+	  format.js
+	end
   end
 
   def enviar_factura(id_factura, id_cliente)
-  	url = URI("http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/.:"+id_factura)
+  	url = URI("http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/"+id_factura)
+
 	http = Net::HTTP.new(url.host, url.port)
 
-	request = Net::HTTP::Post.new(url)
+	request = Net::HTTP::Get.new(url)
 	request["cache-control"] = 'no-cache'
 
 	@response = http.request(request)
 	@response_json = JSON.parse(@response.body)
+	puts @response_json
 	return @response_json
   end
 
@@ -88,32 +169,39 @@ skip_before_filter :verify_authenticity_token
 	@response = @response.to_json
 	responsejson = JSON.parse(@response)
 	json_array =  responsejson["trx"][0]
+	puts "TRANSACCION" + json_array.to_s + "\n"
 	@monto_trx= json_array["monto"]
+	@destino_trx = json_array["destino"]
+	puts "CUENTA DESTINO" + @destino_trx + "\n"
+
 
   	#MONTO FACTURA
-	url = URI("http://mare.ing.puc.cl/facturas/"+@given_idfactura)
+	@factura_json = getFacturaJSON(@given_idfactura)
 
-	http = Net::HTTP.new(url.host, url.port)
-
-	request2 = Net::HTTP::Get.new(url)
-	request2["authorization"] = 'INTEGRACION grupo12:'+generateHash('GET'+@given_idfactura).to_s
-	request2["cache-control"] = 'no-cache'
-
-
-	@factura = http.request(request2)
-	@factura_array = JSON.parse(@factura.body)
-
-	@factura_json = JSON.parse(@factura_array[0].to_json)
 	@monto_factura =  @factura_json["total"]
 
-	if @monto_trx != @monto_factura
-		@response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'wrong amount of money' }
+
+	@cuenta_banco = "571262c3a980ba030058ab65"
+
+	#EN ESTE CASO HAY QUE ESTABLECER POLITICA DE DEPOSITO POR CANTIDAD INCORRECTA
+	if @destino_trx != @cuenta_banco
+      @response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cuenta destino errónea' }
 
       respond_to do |format|
           format.html {}
           format.json { render :json => @response_error.to_json }
           format.js
       end
+	
+	elsif @monto_trx != @monto_factura
+	  @response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cantidad transferida errónea' }
+
+      respond_to do |format|
+          format.html {}
+          format.json { render :json => @response_error.to_json }
+          format.js
+      end
+
     else 
     	@response_default =  {:default => "mensaje por default" }
 		respond_to do |format|		
@@ -333,6 +421,7 @@ skip_before_filter :verify_authenticity_token
 
 	def gestionar_oc
 		@id_oc = params[:idoc]
+
 		begin
 		url = URI("http://mare.ing.puc.cl/oc/obtener/"+@id_oc)
 		http = Net::HTTP.new(url.host, url.port)
@@ -384,12 +473,16 @@ skip_before_filter :verify_authenticity_token
 		#REVISO SI SE PRODUCE
 		if seProduce==true
 		#REVISO SI HAY STOCK
-		@cantidad= got_stock_internal(@oc_sku)
+		@cantidad = got_stock_internal(@oc_sku)
+		puts @cantidad
 			if @cantidad.to_i >= @oc_cantidad.to_i
+				#RETORNAR {aceptado,idoc}
+				@response = {:aceptado => true, :idoc => @id_oc}
 				#ACEPTAR ORDEN COMPRA
-				aceptar_orden(@oc_id)
+				puts aceptar_orden(@oc_id)
 				#GENERAR
 				@factura_id = generar_factura(@oc_id)
+				puts @factura_id
 				#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
 				enviar_factura(@factura_id, @oc_cliente)
 
@@ -429,7 +522,6 @@ skip_before_filter :verify_authenticity_token
 			end		
 		end
 		#END
-
 		
 		rescue Exception => e
 			puts e.to_s

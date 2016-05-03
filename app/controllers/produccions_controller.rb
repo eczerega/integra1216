@@ -123,7 +123,7 @@ class ProduccionsController < ApplicationController
       
       puts saldo
 
-      if saldo >= costo_prod
+      if saldo <= costo_prod
         @response2 = getBodegaJSONData("fabrica/getCuenta","")
         cuenta_id = JSON.parse(@response2)["cuentaId"]
         puts cuenta_id
