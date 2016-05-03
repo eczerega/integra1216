@@ -72,12 +72,22 @@ end
   end
 
   def enviar_factura(id_factura, id_cliente)
-    @response = JSON.parse RestClient.post "http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/.:"+id_factura
-    return @response
+    #url = URI("http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/"+id_factura)
+  url = URI("http://localhost:3000/api/facturas/recibir/"+id_factura)
+  http = Net::HTTP.new(url.host, url.port)
+
+  request = Net::HTTP::Get.new(url)
+  request["cache-control"] = 'no-cache'
+
+  @response = http.request(request)
+  @response_json = JSON.parse(@response.body)
+  puts @response_json
+  return @response_json
   end
 
-
+#puts (DateTime.now+5).strftime('%Q')
+enviar_factura("3",12)
 #puts aceptar_orden("57265e0f006ba10300bc4390")
-puts 'INTEGRACION grupo12:'+generateHash('GET'+'57281872c1ff9b030001a2e4').to_s
+#puts 'INTEGRACION grupo12:'+generateHash('GET'+'57281872c1ff9b030001a2e4').to_s
 #puts stock('47',86)
 
