@@ -21,6 +21,39 @@ class ApiController < ApplicationController
 		end
 	end
 
+	def getOCJSON(id_oc)
+		url = URI("http://mare.ing.puc.cl/oc/obtener/"+id_oc)
+
+		http = Net::HTTP.new(url.host, url.port)
+
+		request2 = Net::HTTP::Get.new(url)
+		request2["cache-control"] = 'no-cache'
+
+		@oc = http.request(request2)
+		@oc_array = JSON.parse(@oc.body)
+
+		@oc_json = JSON.parse(@oc_array[0].to_json)
+		
+		return @oc_json
+	end
+
+	def getFacturaJSON(id_fac)
+		url = URI("http://mare.ing.puc.cl/facturas/"+id_fac)
+
+		http = Net::HTTP.new(url.host, url.port)
+
+		request2 = Net::HTTP::Get.new(url)
+		request2["authorization"] = 'INTEGRACION grupo12:'+generateHash('GET'+id_fac).to_s
+		request2["cache-control"] = 'no-cache'
+
+		@factura = http.request(request2)
+		@factura_array = JSON.parse(@factura.body)
+
+		@factura_json = JSON.parse(@factura_array[0].to_json)
+		
+		return @factura_json
+	end
+
 	def generar_factura(id_oc)
 	  url = URI("http://mare.ing.puc.cl/facturas/")
 	  http = Net::HTTP.new(url.host, url.port)
@@ -50,12 +83,47 @@ class ApiController < ApplicationController
 	return @response_json
   end
 
+  def anular_orden(id_oc)
+  	url = URI("http://mare.ing.puc.cl/oc/anular/"+id_oc)
+	http = Net::HTTP.new(url.host, url.port)
+
+	request = Net::HTTP::Delete.new(url)
+	request["authorization"] = 'INTEGRACION grupo12:'+generateHash('DELETE'+id_oc).to_s
+	request["cache-control"] = 'no-cache'
+
+	@response = http.request(request)
+	@response_json = JSON.parse(@response.body)
+	return @response_json
+  end
+
 
   def recibir_factura()
   	@given_idfactura = params[:idfactura]
 
+  	json_factura = getFacturaJSON(@given_idfactura)
+  	puts json_factura
+
+  	oc_id = json_factura["oc"]
+  	puts oc_id
+  	bruto = json_factura["bruto"]
+  	puts bruto
+
+  	json_oc = getOCJSON(oc_id)
+  	puts json_oc
+
+  	coincide_total = false
+	coincide_cliente = false
+
+	if json_factura["total"]==json_oc["precioUnitario"]
+		coincide_total = true
+	end
+
+	if json_factura["cliente"]==json_oc["cliente"]
+		coincide_cliente = true
+	end
+
 	#HAPPY PATH RECIBIR FACTURA
-	@response_ok =  {:validado => true, :idfactura => @given_idfactura }
+	@response_ok =  {:validado => coincide_cliente && coincide_total, :idfactura => @given_idfactura }
 	respond_to do |format|		
 	  format.html {}
 	  format.json { render :json => @response_ok.to_json }
@@ -104,19 +172,8 @@ class ApiController < ApplicationController
 	@monto_trx= json_array["monto"]
 
   	#MONTO FACTURA
-	url = URI("http://mare.ing.puc.cl/facturas/"+@given_idfactura)
+	@factura_json = getFacturaJSON(@given_idfactura)
 
-	http = Net::HTTP.new(url.host, url.port)
-
-	request2 = Net::HTTP::Get.new(url)
-	request2["authorization"] = 'INTEGRACION grupo12:'+generateHash('GET'+@given_idfactura).to_s
-	request2["cache-control"] = 'no-cache'
-
-
-	@factura = http.request(request2)
-	@factura_array = JSON.parse(@factura.body)
-
-	@factura_json = JSON.parse(@factura_array[0].to_json)
 	@monto_factura =  @factura_json["total"]
 
 	if @monto_trx != @monto_factura
@@ -294,6 +351,8 @@ class ApiController < ApplicationController
 		@cantidad = got_stock_internal(@oc_sku)
 		puts @cantidad
 			if @cantidad.to_i >= @oc_cantidad.to_i
+				#RETORNAR {aceptado,idoc}
+				@response = {:aceptado => true, :idoc => @id_oc}
 				#ACEPTAR ORDEN COMPRA
 				puts aceptar_orden(@oc_id)
 				#GENERAR
@@ -310,20 +369,27 @@ class ApiController < ApplicationController
 				end
 			else
 				#ANULAR OC
+				anular_orden(@oc_id)
+
+				@response = {:aceptado => false, :idoc => @id_oc}
+
 				respond_to do |format|
 				  format.html {}
-				  format.json { render :json => "error: Sin stock".to_json }
+				  format.json { render :json => @response}
 				  format.js
 				end				
 			end
 		else
 			#ANULAR OC
-			respond_to do |format|
+				anular_orden(@oc_id)
+				
+				@response = {:aceptado => false, :idoc => @id_oc}
 
-			  format.html {}
-			  format.json { render :json => "error: producto no producido".to_json }
-			  format.js
-			end			
+				respond_to do |format|
+				  format.html {}
+				  format.json { render :json => @response}
+				  format.js
+				end				
 		end
 		#END
 		
