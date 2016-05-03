@@ -11,15 +11,27 @@ skip_before_filter :verify_authenticity_token
 
 #Métodos Felipe, Javiera
 
+  def generar_factura(id_oc)
+    @hashi_put = 'INTEGRACION grupo12:'+generateHash('PUT'+id_oc).to_s
+    @response = JSON.parse RestClient.put "http://mare.ing.puc.cl/facturas/", {oc: id_oc}, {:Authorization => @hashi_get}
+    @factura_id = @response["_id"]
+    return @factura_id
+  end
 
-  def generar_factura
-    return 'genero factura'
+  def aceptar_orden(id_oc)
+    @hashi_put = 'INTEGRACION grupo12:'+generateHash('POST'+id_oc).to_s
+    @response = JSON.parse RestClient.post "http://mare.ing.puc.cl/oc/recepcionar/"+id_oc, {:Authorization => @hashi_get}
+    return @response
+  end
+
+  def enviar_factura(id_factura, id_cliente)
+    @response = JSON.parse RestClient.post "http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/.:"+id_factura
+    return @response
   end
 
   def generar_materia_prima
     return 'genero materia prima'
   end
-
 
 #END
 
@@ -136,7 +148,7 @@ skip_before_filter :verify_authenticity_token
 
 		@response = http.request(request)
 		#ACA REVISAMOS LA BDD Y ESAS WEAS
-		@response_json = JSON.parse(@response.body)
+		lsof -wni tcp:3000@response_json = JSON.parse(@response.body)
 		@response = @response.body
 		@oc_id = @response_json[0]["_id"]
 		@oc_notas = @response_json[0]["notas"]
@@ -173,6 +185,13 @@ skip_before_filter :verify_authenticity_token
 		#REVISO SI HAY STOCK
 		@cantidad= got_stock_internal(@oc_sku)
 			if @cantidad.to_i >= @oc_cantidad.to_i
+				#ACEPTAR ORDEN COMPRA
+				aceptar_orden(@oc_id)
+				#GENERAR
+				@factura_id = generar_factura(@oc_id)
+				#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
+				enviar_factura(@factura_id, @oc_cliente)
+
 				respond_to do |format|
 				  format.html {}
 				  format.json { render :json => @response }
