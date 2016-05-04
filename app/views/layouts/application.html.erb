@@ -6,6 +6,7 @@
   	<%= javascript_include_tag 'application' %>
   	<%= csrf_meta_tags %>
 	<meta charset="utf-8">
+    <base href="/">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
@@ -156,6 +157,9 @@
                      <li style="cursor: pointer !important;" ui-sref='cellar' >
                         <a href="false.html"><i class="fa fa-fw fa-desktop"></i> Bodega</a>
                     </li>
+                     <li style="cursor: pointer !important;" ui-sref='cronjobs' >
+                        <a href="false.html"><i class="fa fa-fw fa-clock-o"></i> Cronjobs</a>
+                    </li>
                     <li>
                         <a href="javascript:;" data-toggle="collapse" data-target="#demo"><i class="fa fa-fw fa-arrows-v"></i> Api <i class="fa fa-fw fa-caret-down"></i></a>
                         <ul id="demo" class="collapse">
@@ -191,3 +195,10 @@
 
 </body>
 </html>
+<script>
+    $(".nav li").on("click", function() {
+      $(".nav li").removeClass("active");
+      $(this).addClass("active");
+    });
+
+</script>

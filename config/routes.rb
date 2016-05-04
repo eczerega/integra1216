@@ -11,13 +11,14 @@ Rails.application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
   root 'home#index'
+  get 'cronjobs' => 'cronjobs#index'
   get 'dashboard' => 'dashboard#index'
   get 'charts' => 'charts#index'
   get 'testing' => 'testing#index'
   get 'orders' => 'orders#index'
   get 'cellar' => 'cellar#index'
   get 'api' => 'api#index'
-  get 'documentation' => 'documentation#index'
+  get 'api/documentacion' => 'documentation#index'
   get 'api/consultar/:sku' => 'api#got_stock', defaults: {format: :json}
   put 'oc/crear'=> 'oc_recibidas#crear_oc_api'
   get 'api/pagos/recibir/:idtrx' => 'api#recibir_trx', defaults: {format: :json}

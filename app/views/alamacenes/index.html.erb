@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Alamacenes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Almacenid</th>
+      <th>Tamano</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @alamacenes.each do |alamacene| %>
+      <tr>
+        <td><%= alamacene.almacenid %></td>
+        <td><%= alamacene.tamano %></td>
+        <td><%= link_to 'Show', alamacene %></td>
+        <td><%= link_to 'Edit', edit_alamacene_path(alamacene) %></td>
+        <td><%= link_to 'Destroy', alamacene, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Alamacene', new_alamacene_path %>

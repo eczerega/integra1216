@@ -8,14 +8,16 @@ var app = angular
         'ngAnimate',
         'infinite-scroll',
         'ngAnimate',
-        'tallerDirectives'
+        'tallerDirectives',
+         'chart.js'
     ]
 );
 
 
 app.config(function(
                     $stateProvider,
-                    $urlRouterProvider
+                    $urlRouterProvider,
+                    $locationProvider
                 )
                 {
                 $urlRouterProvider.otherwise('/dashboard');
@@ -48,6 +50,11 @@ app.config(function(
                       templateUrl: '/charts'
                     })
 
+                    .state('cronjobs', {
+                      url: '/cronjobs',
+                      templateUrl: '/cronjobs'
+                    })
+
                     .state('testing', {
                       url: '/testing',
                       templateUrl: '/testing'
@@ -65,8 +72,8 @@ app.config(function(
                       templateUrl: '/api'
                     })
                     .state('documentation', {
-                      url: '/documentation',
-                      templateUrl: '/documentation'
+                      url: '/api/documentacion',
+                      templateUrl: '/api/documentacion'
                     })
 
 
@@ -125,15 +132,28 @@ app.config(function(
                     });
 
 
+          $locationProvider.html5Mode(true);
+        });
 
-                }
 
-
-        );
-
+app.run(function($rootScope, $templateCache, $http) {
+    $rootScope.$on('$stateChangeSuccess', function() {
+        $templateCache.removeAll();
+    });
+})
 
 app
 .controller('MainCtrl',function($scope,$rootScope, $state){
-        //alert('asd');
-            $scope.vari="ASDASD";
+      $scope.vari="ASDASD";
+      $scope.labels = ['2006', '2007', '2008', '2009', '2010', '2011', '2012'];
+      $scope.series = ['Series A', 'Series B'];
+
+      $scope.data = [
+        [65, 59, 80, 81, 56, 55, 40],
+        [28, 48, 40, 19, 86, 27, 90]
+      ];
+
+
 });
+
+

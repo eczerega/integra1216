@@ -410,6 +410,36 @@ class ApiController < ApplicationController
       end
 	end
 
+	def got_stock_string
+		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		@data = get_almacenes_id
+		@all_skus=all_skus
+		@response
+		@given_id = params[:sku]
+		@cantidad_total = 0
+		@all_skus.each do |sku|
+			@line_json = JSON.parse(sku)
+			begin
+				@sku_id=@line_json[0]["_id"]
+				@sku_total=@line_json[0]["total"].to_i
+				if @given_id == @sku_id
+					@cantidad_total+= @sku_total
+				end
+			rescue Exception => e
+			end
+
+		end
+		@response =  {:stock => @cantidad_total.to_s, :sku => @given_id.to_s }
+
+      respond_to do |format|
+          format.html {}
+          format.json { render :json => @response.to_json }
+          format.js
+      end
+	end
+
+
+
 	def got_stock_internal(given_sku)
 		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
 		@data = get_almacenes_id

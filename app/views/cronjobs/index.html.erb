@@ -1,0 +1,72 @@
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">
+            Dashboard <small>Cronjobs</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li class="active">
+                <i class="fa fa-dashboard"></i> /Dashboard/cronjobs
+            </li>
+        </ol>
+    </div>
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+    <h3>
+    	Actividades realizadas periodicamenete
+    </h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+    
+    <h5>
+    	Vacíar almacén recepción cada 1 hora
+    </h5>
+    <ul>
+    <% File.open(Rails.root.to_s+"/jobs/up.txt", "r") do |f| %>
+  		<% f.each_line do |line| %>
+		<li>
+			<p>
+				<%= line %>
+			</p>
+		</li>
+		<% end %>
+	<% end %>
+    </ul>
+    </div>
+    <div class="col-lg-4">
+    <h5>
+    	Enviar ordenes de compra 1 vez al día
+    </h5>
+    <ul>
+    <% File.open(Rails.root.to_s+"/jobs/up2.txt", "r") do |f| %>
+  		<% f.each_line do |line| %>
+		<li>
+			<p>
+				<%= line %>
+			</p>
+		</li>
+		<% end %>
+	<% end %>
+    </ul>
+    </div>
+    <div class="col-lg-4">
+    <h5>
+    	Revisar facturas pagadas y enviar cada 10 minutos
+    </h5>
+    <ul>
+    <% File.open(Rails.root.to_s+"/jobs/up3.txt", "r") do |f| %>
+  		<% f.each_line do |line| %>
+		<li>
+			<p>
+				<%= line %>
+			</p>
+		</li>
+		<% end %>
+	<% end %>
+    </ul>
+    </div>
+</div>

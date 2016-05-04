@@ -1,0 +1,25 @@
+<%= form_for(@alamacene) do |f| %>
+  <% if @alamacene.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@alamacene.errors.count, "error") %> prohibited this alamacene from being saved:</h2>
+
+      <ul>
+      <% @alamacene.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :almacenid %><br>
+    <%= f.text_field :almacenid %>
+  </div>
+  <div class="field">
+    <%= f.label :tamano %><br>
+    <%= f.number_field :tamano %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

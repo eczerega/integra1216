@@ -1,1 +1,77 @@
-Documentacion
+
+
+<style>
+
+h1
+{
+	font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: #6C6C72;
+        font-family: verdana, arial, helvetica, sans-serif;
+    //font-size: 13px;
+    line-height: 18px;
+}
+		/* LIST #2 */
+	#list2 ol { font-style:italic; font-family:Georgia, Times, serif; color:rgba(3, 105, 91, 0.57); }
+	#list2 ol li { }
+	#list2 ol li p { padding:8px; font-style:normal; font-family:Arial; font-size:13px; color:rgba(68, 67, 67, 0.79); border-left: 1px solid #999; }
+	#list2 ol li p em { display:block; }
+
+</style>
+<br>
+<h1>Documentación</h1>
+<br>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-12">
+			<div id="list2">
+			   <ol>
+			      <li>
+			      <p>
+			      <em><b>integra12.ing.puc.cl/api/documentacion (GET)</b></em> 
+			      Descripción: Entrega documentación de la api<br>
+			      Parámetros: Ninguno<br>
+			      Retorno: HTML
+			      </p>
+			      </li>
+			      <li>
+			      <p>
+			      <em><b>integra12.ing.puc.cl/api/consultar/.:sku (GET)</b></em> 
+			      Descripción: Entrega la cantidad de sku en stock en formato JSON<br>
+			      Parámetros: Ninguno<br>
+			      Retorno:
+
+					<pre>
+					<code>
+						{
+							“stock”: int, 
+							“sku”: int
+						}
+					</code>
+					</pre>
+			      </p>
+			      </li>
+
+  			      <li>
+			      <p>
+			      <em><b>integra12.ing.puc.cl/api/oc/recibir/.:idoc (GET)</b></em> 
+			      Descripción: Entrega un JSON informando si se aceptó una OC o no<br>
+			      Parámetros: Ninguno<br>
+			      Retorno: HTML
+					<pre>
+					<code>
+						{
+							“aceptado”: boolean, 
+							“idoc”: string
+						}
+					</code>
+					</pre>
+			      </p>
+			      </li>
+
+			   </ol>
+			</div>						
+		</div>
+	</div>
+</div>

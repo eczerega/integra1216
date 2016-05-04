@@ -27,6 +27,8 @@
 //= require sweetalert/dist/sweetalert.min.js
 //= require angular-loading-bar/build/loading-bar.min.js
 //= require ngInfiniteScroll/build/ng-infinite-scroll.js
+//= require Chart
+//= require angular-chart.js/dist/angular-chart.js
 //= require_tree .
 
 //= require_tree .
