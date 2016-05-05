@@ -1,0 +1,29 @@
+<%= form_for(@factura_oc) do |f| %>
+  <% if @factura_oc.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@factura_oc.errors.count, "error") %> prohibited this factura_oc from being saved:</h2>
+
+      <ul>
+      <% @factura_oc.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :factura_id %><br>
+    <%= f.text_field :factura_id %>
+  </div>
+  <div class="field">
+    <%= f.label :oc_id %><br>
+    <%= f.text_field :oc_id %>
+  </div>
+  <div class="field">
+    <%= f.label :estado %><br>
+    <%= f.text_field :estado %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :factura_ocs
   resources :sku_stocks
   resources :precios
   resources :costos

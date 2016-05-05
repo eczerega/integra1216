@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  factura_id: MyString
+  oc_id: MyString
+  estado: MyString
+
+two:
+  factura_id: MyString
+  oc_id: MyString
+  estado: MyString

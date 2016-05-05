@@ -1,0 +1,19 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Factura:</strong>
+  <%= @factura_oc.factura_id %>
+</p>
+
+<p>
+  <strong>Oc:</strong>
+  <%= @factura_oc.oc_id %>
+</p>
+
+<p>
+  <strong>Estado:</strong>
+  <%= @factura_oc.estado %>
+</p>
+
+<%= link_to 'Edit', edit_factura_oc_path(@factura_oc) %> |
+<%= link_to 'Back', factura_ocs_path %>

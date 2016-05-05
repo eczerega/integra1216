@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Factura Ocs</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Factura</th>
+      <th>Oc</th>
+      <th>Estado</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @factura_ocs.each do |factura_oc| %>
+      <tr>
+        <td><%= factura_oc.factura_id %></td>
+        <td><%= factura_oc.oc_id %></td>
+        <td><%= factura_oc.estado %></td>
+        <td><%= link_to 'Show', factura_oc %></td>
+        <td><%= link_to 'Edit', edit_factura_oc_path(factura_oc) %></td>
+        <td><%= link_to 'Destroy', factura_oc, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Factura oc', new_factura_oc_path %>
