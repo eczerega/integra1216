@@ -497,8 +497,8 @@ class ApiController < ApplicationController
 		@oc_cantidadDespachada = @response_json[0]["cantidadDespachada"]
 		@oc_cantidad = @response_json[0]["cantidad"]
 		@oc_canal = @response_json[0]["canal"]
-		if @oc_proveedor != "12"
-			#ANULAR OC
+		if @oc_proveedor != "571262b8a980ba030058ab5a"
+			anular_orden(@oc_id, 'Grupo no corresponde')
 			resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 			my_hash = JSON.parse(resp_json)
 			respond_to do |format|
@@ -549,7 +549,7 @@ class ApiController < ApplicationController
 					  format.js
 					end
 				else
-					#ANULAR OC
+					anular_orden(@oc_id, 'No hay stock')
 					resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 					my_hash = JSON.parse(resp_json)
 
@@ -560,7 +560,7 @@ class ApiController < ApplicationController
 					end			
 				end
 			else
-				#ANULAR OC
+				anular_orden(@oc_id, 'No producimos esta cosa')
 				resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 				my_hash = JSON.parse(resp_json)
 
