@@ -3,8 +3,8 @@ require 'json'
 class ApiController < ApplicationController
 	layout false
 	def generateHash (contenidoSignature)
-			encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
-			return encoded_string
+		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+		return encoded_string
 	end
 	skip_before_filter :verify_authenticity_token
 
@@ -19,6 +19,19 @@ class ApiController < ApplicationController
 		  format.json { render :json => @response_default.to_json }
 		  format.js
 		end
+	end
+
+	def crear_trx(monto, origenId, destinoId)
+		dinero = monto.to_s
+		url = URI("http://mare.ing.puc.cl/banco/trx")
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::Put.new(url)
+		request["content-type"] = 'application/json'
+		request["cache-control"] = 'no-cache'
+		request["postman-token"] = 'a6719103-e787-baf6-90db-0618b6f3da85'
+		request.body = "{\n    \"monto\": \""+ dinero +"\",\n    \"origen\": \""+ origenId +"\",\n    \"destino\": \""+ destinoId +"\"\n}"
+		response = http.request(request)
+		puts response.read_body
 	end
 
 	def getOCJSON(id_oc)
@@ -83,6 +96,19 @@ class ApiController < ApplicationController
 		return @response_json
 	end
 
+	def rechazar_orden(id_oc, respuesta)
+	  	url = URI("http://mare.ing.puc.cl/oc/rechazar/"+id_oc)
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::POST.new(url)
+		request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+		request["authorization"] = 'INTEGRACION grupo12cvrkpgZRptPWtoDFmyr9n3dtzfc='
+		request["cache-control"] = 'no-cache'
+		request["postman-token"] = '852f5544-3be3-d8f2-e8eb-24db50cfc6cc'
+		request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"rechazo\"\r\n\r\n"+ respuesta +"\r\n-----011000010111000001101001--"
+		response = http.request(request)
+		return response
+	end
+
 	def anular_orden(id_oc, respuesta)
 	  	url = URI("http://mare.ing.puc.cl/oc/anular/"+id_oc)
 		http = Net::HTTP.new(url.host, url.port)
@@ -122,7 +148,9 @@ class ApiController < ApplicationController
 		end
 
 		if coincide_cliente && coincide_total
-			FacturaOC.create(factura_id:given_idfactura, oc_id:oc_id, estado:"factura por pagar")
+			foc = FacturaOc.find_by(oc_id:oc_id,factura_id:@given_idfactura)
+			foc.estado = "factura por pagar"
+			foc.save
 
 			@response_ok =  {:validado => true, :idfactura => @given_idfactura }
 			respond_to do |format|		
@@ -511,13 +539,10 @@ class ApiController < ApplicationController
 			@oc_cantidadDespachada = @response_json[0]["cantidadDespachada"]
 			@oc_cantidad = @response_json[0]["cantidad"]
 			@oc_canal = @response_json[0]["canal"]
-			puts @oc_proveedor
-			puts @oc_proveedor.length
-			puts "572aac69bdb6d403005fb04d"
+
 
 			if !(@oc_proveedor.to_s == "572aac69bdb6d403005fb04d")
-				#anular_orden(@oc_id, 'Grupo no corresponde')
-				puts "hola"
+				rechazar_orden(@oc_id, 'Grupo no corresponde')
 				resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 				my_hash = JSON.parse(resp_json)
 				respond_to do |format|
@@ -541,6 +566,8 @@ class ApiController < ApplicationController
 					end
 				end
 
+
+
 				#FIN
 
 				#REVISO SI SE PRODUCE
@@ -556,6 +583,9 @@ class ApiController < ApplicationController
 						#GENERAR
 						@factura_id = generar_factura(@oc_id)
 						puts @factura_id
+
+						FacturaOC.create(factura_id:@factura_id, oc_id:@id_oc, estado:"creada")
+
 						#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
 						enviar_factura(@factura_id, @oc_cliente)
 
@@ -573,7 +603,7 @@ class ApiController < ApplicationController
 						  format.js
 						end
 					else
-						#anular_orden(@oc_id, 'No hay stock')
+						rechazar_orden(@oc_id, 'No hay stock')
 						puts "hola2"
 						resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 						my_hash = JSON.parse(resp_json)
@@ -586,7 +616,7 @@ class ApiController < ApplicationController
 					end
 				else
 					puts "hola3"
-					#anular_orden(@oc_id, 'No producimos esta cosa')
+					rechazar_orden(@oc_id, 'No producimos esta cosa')
 					resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 					my_hash = JSON.parse(resp_json)
 
