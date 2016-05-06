@@ -20,7 +20,7 @@ Rails.application.routes.draw do
   get 'cellar' => 'cellar#index'
   get 'api' => 'api#index'
   get 'api/documentacion' => 'documentation#index'
-  get 'api/consultar/:sku' => 'api#got_stock', defaults: {format: :json}
+  get 'api/consultar/:sku' => 'api#contarTotal', defaults: {format: :json}
   put 'oc/crear'=> 'oc_recibidas#crear_oc_api'
   get 'api/pagos/recibir/:idtrx' => 'api#recibir_trx', defaults: {format: :json}
   get 'api/oc/recibir/:idoc' => 'api#gestionar_oc', defaults: {format: :json}
