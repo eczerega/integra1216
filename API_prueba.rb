@@ -261,4 +261,5 @@ sku = '7'
 cantidad = 2
 #precio = 941
 #traspaso_interno('571262aba980ba030058a5c6', '571262aba980ba030058a5c8', sku, 155)
-preparar_despacho(oc, sku, cantidad, precio, almacenId)
+#puts generar_factura('572c2d9dacbda70300e289e1')
+#preparar_despacho(oc, sku, cantidad, precio, almacenId)

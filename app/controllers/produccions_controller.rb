@@ -9,13 +9,13 @@ class ProduccionsController < ApplicationController
 
           #permite generar el hash para las distintas autorizaciones, lo retorna
   def generateHash (contenidoSignature)
-      encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+      encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
       return encoded_string
   end
 
   def getBodegaJSONData(url_req, param_string)
       @hashi = 'INTEGRACION grupo12:'+generateHash('GET'+param_string).to_s
-      url = URI.parse("http://integracion-2016-dev.herokuapp.com/bodega/"+url_req)
+      url = URI.parse("http://integracion-2016-prod.herokuapp.com/bodega/"+url_req)
       req = Net::HTTP::Get.new(url.to_s)
       req['Authorization'] = @hashi
       res = Net::HTTP.start(url.host, url.port) {|http|
@@ -27,7 +27,7 @@ class ProduccionsController < ApplicationController
 
   def getBancoJSONData(url_req)
       @hashi = 'INTEGRACION grupo12:'+generateHash('GET').to_s
-      url = URI.parse("http://mare.ing.puc.cl/banco/"+url_req)
+      url = URI.parse("http://moto.ing.puc.cl/banco/"+url_req)
       req = Net::HTTP::Get.new(url.to_s)
       #req['Authorization'] = @hashi
       res = Net::HTTP.start(url.host, url.port) {|http|
@@ -41,7 +41,7 @@ class ProduccionsController < ApplicationController
       @hashi = 'INTEGRACION grupo12:'+generateHash('PUT'+param_string).to_s
       puts @hashi
       
-      url = URI.parse("http://integracion-2016-dev.herokuapp.com/bodega/"+url_req)
+      url = URI.parse("http://integracion-2016-prod.herokuapp.com/bodega/"+url_req)
       req = Net::HTTP::Put.new(url.to_s,initheader = {'Content-Type' =>'application/json'})
       req['Authorization'] = @hashi
       req.body=params
@@ -63,7 +63,7 @@ class ProduccionsController < ApplicationController
 
   def putBancoJSONData(url_req, params)
     
-      url = URI.parse("http://mare.ing.puc.cl/banco/"+url_req)
+      url = URI.parse("http://moto.ing.puc.cl/banco/"+url_req)
       req = Net::HTTP::Put.new(url.to_s,initheader = {'Content-Type' =>'application/json'})
       req.body=params
       res = Net::HTTP.start(url.host, url.port) {|http|
@@ -114,11 +114,11 @@ class ProduccionsController < ApplicationController
       cant_prod=num_batch*cant_sku
       puts "El costo unitario por batch es "+costo_unitario.to_s+" y el costo total de esta producción es "+costo_prod.to_s
 
-      url_bodega = "http://integracion-2016-dev.herokuapp.com/bodega/"
-      url_banco = "http://mare.ing.puc.cl/banco/"
+      url_bodega = "http://integracion-2016-prod.herokuapp.com/bodega/"
+      url_banco = "http://moto.ing.puc.cl/banco/"
 
 
-      @response = getBancoJSONData("cuenta/571262c3a980ba030058ab65")
+      @response = getBancoJSONData("cuenta/572aac69bdb6d403005fb05a")
       saldo = getInfoFromJSON(@response,"saldo")
       
       puts saldo
@@ -128,7 +128,7 @@ class ProduccionsController < ApplicationController
         cuenta_id = JSON.parse(@response2)["cuentaId"]
         puts cuenta_id
 
-        aux_hash={:monto=>costo_prod, :origen=>"571262c3a980ba030058ab65", :destino=>cuenta_id}
+        aux_hash={:monto=>costo_prod, :origen=>"572aac69bdb6d403005fb05a", :destino=>cuenta_id}
         jsonbody = JSON.generate(aux_hash)
         puts jsonbody
 
