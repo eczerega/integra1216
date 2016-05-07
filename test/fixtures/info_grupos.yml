@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  id_grupo: MyString
+  num_grupo: MyString
+  id_banco: MyString
+  id_almacen: MyString
+  ambiente: MyString
+
+two:
+  id_grupo: MyString
+  num_grupo: MyString
+  id_banco: MyString
+  id_almacen: MyString
+  ambiente: MyString

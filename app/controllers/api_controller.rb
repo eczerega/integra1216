@@ -35,6 +35,27 @@ class ApiController < ApplicationController
 		puts response.read_body
 	end
 
+	def crear_trx_exp()
+		origenId=params["origen"].to_s
+		destinoId=params["destino"].to_s
+		dinero = params["monto"].to_i
+		url = URI("http://mare.ing.puc.cl/banco/trx")
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::Put.new(url)
+		request["content-type"] = 'application/json'
+		request["cache-control"] = 'no-cache'
+		request["postman-token"] = 'a6719103-e787-baf6-90db-0618b6f3da85'
+		request.body = "{\n    \"monto\": \""+ dinero.to_s+"\",\n    \"origen\": \""+ origenId +"\",\n    \"destino\": \""+ destinoId +"\"\n}"
+		response = http.request(request)
+		puts response.read_body
+
+		respond_to do |format|
+	          format.html {}
+	          format.json { render :json => response.read_body }
+	          format.js
+	     end
+	end
+
 	def getOCJSON(id_oc)
 		url = URI("http://mare.ing.puc.cl/oc/obtener/"+id_oc)
 
@@ -96,6 +117,18 @@ class ApiController < ApplicationController
 		puts response.read_body
 	end
 
+	def anular_factura(facturaId, motivo)
+		url = URI("http://mare.ing.puc.cl/facturas/cancel")
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::Post.new(url)
+		request["content-type"] = 'application/json'
+		request["cache-control"] = 'no-cache'
+		request["postman-token"] = '485a9988-376e-7e60-d24f-6b728a38ed7f'
+		request.body = "{\n    \"id\": \""+ facturaId +"\",\n    \"motivo\": \""+ motivo +"\"\n}"
+		response = http.request(request)
+		puts response.read_body
+	end
+
 	def aceptar_orden(id_oc)
 	  	url = URI("http://mare.ing.puc.cl/oc/recepcionar/"+id_oc)
 		http = Net::HTTP.new(url.host, url.port)
@@ -119,6 +152,8 @@ class ApiController < ApplicationController
 		request["postman-token"] = '852f5544-3be3-d8f2-e8eb-24db50cfc6cc'
 		request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"rechazo\"\r\n\r\n"+ respuesta +"\r\n-----011000010111000001101001--"
 		response = http.request(request)
+		orden = OcRecibida.find_by(id_dev: id_oc)
+		orden.rechazo = respuesta
 		return response
 	end
 
@@ -132,6 +167,8 @@ class ApiController < ApplicationController
 		request["postman-token"] = '852f5544-3be3-d8f2-e8eb-24db50cfc6cc'
 		request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"anulacion\"\r\n\r\n"+ respuesta +"\r\n-----011000010111000001101001--"
 		response = http.request(request)
+		orden = OcRecibida.find_by(id_dev: id_oc)
+		orden.anulacion = respuesta
 		return response
 	end
 
@@ -179,6 +216,11 @@ class ApiController < ApplicationController
 			end
 		else
 			rechazar_factura(@given_idfactura, motivo)
+			foc = FacturaOc.find_by(oc_id: oc_id.to_s, factura_id: @given_idfactura)
+			puts foc
+			foc.estado = "factura rechazada"
+			foc.save
+
 			@response_ok =  {:validado => false, :idfactura => @given_idfactura }
 			respond_to do |format|		
 			  format.html {}
@@ -189,7 +231,10 @@ class ApiController < ApplicationController
   	end
 
 	def enviar_factura(id_factura, id_cliente)
-	  	url = URI("http://integra"+id_cliente+".ing.puc.cl/api/facturas/recibir/"+id_factura)
+	  	
+	  	num_grupo = InfoGrupo.find_by(id_grupo: id_cliente).num_grupo
+
+	  	url = URI("http://integra"+num_grupo+".ing.puc.cl/api/facturas/recibir/"+id_factura)
 
 		http = Net::HTTP.new(url.host, url.port)
 
@@ -228,13 +273,14 @@ class ApiController < ApplicationController
 		json_array =  responsejson["trx"][0]
 		puts "TRANSACCION" + json_array.to_s + "\n"
 		@monto_trx= json_array["monto"]
+		@origen_trx = json_array["origen"]
 		@destino_trx = json_array["destino"]
 		puts "CUENTA DESTINO" + @destino_trx + "\n"
 
 
 	  	#MONTO FACTURA
 		@factura_json = getFacturaJSON(@given_idfactura)
-
+		@oc_id = @factura_json["oc"]
 		@monto_factura =  @factura_json["total"]
 
 
@@ -242,28 +288,52 @@ class ApiController < ApplicationController
 
 		#EN ESTE CASO HAY QUE ESTABLECER POLITICA DE DEPOSITO POR CANTIDAD INCORRECTA
 		if @destino_trx != @cuenta_banco
-	      @response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cuenta destino errónea' }
+	    	@response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cuenta destino errónea' }
+	    	anular_factura(@given_idfactura,"Cuenta destino errónea")
+	    	foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @given_idfactura)
+			puts foc
+			foc.estado = "factura anulada"
+			foc.save
 
-	      respond_to do |format|
-	          format.html {}
-	          format.json { render :json => @response_error.to_json }
-	          format.js
-	      end
+	    	respond_to do |format|
+	        	format.html {}
+	        	format.json { render :json => @response_error.to_json }
+	        	format.js
+	    	end
 		elsif @monto_trx != @monto_factura
-		  @response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cantidad transferida errónea' }
+			@response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cantidad transferida errónea' }
+			anular_factura(@given_idfactura,"Cantidad transferida errónea")
+	    	foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @given_idfactura)
+			puts foc
+			foc.estado = "factura anulada"
+			foc.save
 
-	      respond_to do |format|
+	    	respond_to do |format|
 	          format.html {}
 	          format.json { render :json => @response_error.to_json }
 	          format.js
-	      end
+	    	end
 	    else 
 	    	@response_default =  {:validado => true, :idtrx =>  @given_idtrx}
+			foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @given_idfactura)
+			puts foc
+			foc.estado = "factura pagada"
+			foc.save
+			orden = OcRecibida.find_by(id_dev: @oc_id)
+			@oc_precioUnitario = orden.precio_unit
+			@oc_cantidad = orden.cantidad
+			@oc_sku = orden.sku
+			info = InfoGrupo.find_by(id_banco: @origen_trx)
+			almacen_destino = info.id_almacen
 			respond_to do |format|		
 			  format.html {}
 			  format.json { render :json => @response_default.to_json }
 			  format.js
 			end
+
+			###UNA VEZ CHEQUEADO EL PAGO, REALIZAMOS EL DESPACHO
+			preparar_despacho(@oc_id.to_s, @oc_sku, @oc_cantidad, @oc_precioUnitario, almacen_destino)
+
 		end
 	end
 
@@ -361,6 +431,8 @@ class ApiController < ApplicationController
       if cantidad <= stock_en_despacho
         puts "listos para despachar"
         faltante = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, cantidad, precio)
+      	tablasku = SkuStock.find_by(SKU: sku)
+      	tablasku.stock -= cantidad
       else
         puts "debemos mover cosas"
         @mis_almacenes = ["571262aba980ba030058a5d7", "571262aba980ba030058a5c6", "571262aba980ba030058a5c8", "571262aba980ba030058a5d6"]
@@ -384,6 +456,8 @@ class ApiController < ApplicationController
             end
           end
           puts "despachamos!"
+          tablasku = SkuStock.find_by(SKU: sku)
+      	  tablasku.stock -= cantidad
           ###despachar()
         else
           ###NO SE PUEDE DESPACHAR
@@ -455,7 +529,34 @@ class ApiController < ApplicationController
       	end
 	end
 
-	def contarTotal(sku)
+	def contarTotal()
+		sku = params[:sku]
+		url = URI("http://integracion-2016-dev.herokuapp.com/bodega/almacenes")
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::Get.new(url)
+		@hashi_get = 'INTEGRACION grupo12:'+generateHash('GET').to_s
+		request["authorization"] = @hashi_get
+		request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+		request["cache-control"] = 'no-cache'
+		request["postman-token"] = '87c4769c-086d-7a1a-a299-d68b4be2f76a'
+		response = http.request(request)
+		total = 0
+		JSON.parse(response.body).each do |line|
+			almacen = line["_id"]
+			puts almacen
+			total += contarProductos(almacen, sku)
+	    end
+	    #return total
+	    hash_res = {:stock=>total,:sku=>sku}
+
+    	respond_to do |format|
+			format.html {}
+			format.json { render :json => hash_res}
+			format.js
+		end	
+	end
+
+	def contarTotal2(sku)
 		#sku = params[:sku]
 		url = URI("http://integracion-2016-dev.herokuapp.com/bodega/almacenes")
 		http = Net::HTTP.new(url.host, url.port)
@@ -473,13 +574,10 @@ class ApiController < ApplicationController
 			total += contarProductos(almacen, sku)
 	    end
 	    return total
-	    #hash_res = {:stock=>total,:sku=>sku}
+	end
 
-    	#respond_to do |format|
-		#	format.html {}
-		#	format.json { render :json => hash_res}
-		#	format.js
-		#end	
+	def contarSkuLocal(sku)
+		return SkuStock.find_by(SKU: sku).stock
 	end
 
 	def got_stock_string
@@ -559,10 +657,20 @@ class ApiController < ApplicationController
 			@oc_cantidadDespachada = @response_json[0]["cantidadDespachada"]
 			@oc_cantidad = @response_json[0]["cantidad"]
 			@oc_canal = @response_json[0]["canal"]
+			@oc_creado = @response_json[0]["created_at"]
+			OcRecibida.create(id_dev:@oc_id, created_at_dev: @oc_creado, canal:@oc_canal, sku:@oc_sku, cantidad:@oc_cantidad, precio_unit:@oc_precioUnitario, entrega_at:@oc_fechaEntrega, despacho_at:@oc_fechaEntrega, estado:@oc_estado, rechazo:'', anulacion:'', id_factura_dev:'')
 
 
-			if !(@oc_proveedor.to_s == "571262b8a980ba030058ab5a")
+			if !(@oc_proveedor.to_s == "572aac69bdb6d403005fb04d")
 				rechazar_orden(@oc_id, 'Grupo no corresponde')
+				resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
+				my_hash = JSON.parse(resp_json)
+				respond_to do |format|
+				  format.html {}
+				  format.json { render :json => my_hash}
+				  format.js
+				end
+			elsif @oc_estado!="creada"
 				resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 				my_hash = JSON.parse(resp_json)
 				respond_to do |format|
@@ -573,17 +681,18 @@ class ApiController < ApplicationController
 			else
 				#REVISO MIS SKUS
 				puts @oc_sku
-				@mis_sku = Precio.all
+				@mis_sku = [7,15,30,34,51]
 				puts @mis_sku
 				seProduce= false
 				precioCorrecto= false
 				
 				@mis_sku.each do |sku|
-					puts sku.SKU
-					p
-					if sku.SKU==@oc_sku.to_s
+					puts sku
+					if sku.to_s==@oc_sku.to_s
 						seProduce = true
-						if @oc_precioUnitario.to_i < sku.Precio_Unitario
+						precio_unit_sku=Precio.find_by(SKU:sku).Precio_Unitario
+
+						if @oc_precioUnitario.to_i < precio_unit_sku
 							rechazar_orden(@oc_id, 'Precio incorrecto')
 							resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 							my_hash = JSON.parse(resp_json)
@@ -608,26 +717,35 @@ class ApiController < ApplicationController
 				if seProduce==true && precioCorrecto == true
 					#REVISO SI HAY STOCK
 					#@cantidad = got_stock_internal(@oc_sku)
-					@cantidad = contarTotal(@oc_sku)
+					@cantidad = contarTotal2(@oc_sku)
 					puts @cantidad
 					if @cantidad.to_i >= @oc_cantidad.to_i
 						#RETORNAR {aceptado,idoc}
 						@response = {:aceptado => true, :idoc => @id_oc}
+						#CREAR ORDEN EN LA BDD
 						#ACEPTAR ORDEN COMPRA
 						puts aceptar_orden(@oc_id)
 						#GENERAR
 						@factura_id = generar_factura(@oc_id)
 						puts @factura_id
-						puts 'jiji'
 						FacturaOc.create(factura_id:@factura_id, oc_id:@id_oc, estado:"creada")
-
 						#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
-						enviar_factura(@factura_id, @oc_cliente)
-
-
-						###UNA VEZ CHEQUEADO EL PAGO, REALIZAMOS EL DESPACHO
-						#preparar_despacho(@oc_id.to_s, @oc_sku, @oc_cantidad, @oc_precioUnitario, almacen_destino)
-
+						fact_resp = enviar_factura(@factura_id, @oc_cliente)
+						if fact_resp["validado"]
+							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
+							puts foc
+							foc.estado = "factura aceptada por cliente"
+							orden_compra = OcRecibida.find_by(id_dev:@oc_ic)
+							orden_compra.estado = 'aceptada'
+							foc.save
+						else
+							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
+							puts foc
+							foc.estado = "factura rechazada por cliente"
+							orden_compra = OcRecibida.find_by(id_dev:@oc_ic)
+							orden_compra.estado = 'anulada'
+							foc.save
+						end
 
 						resp_json = {:aceptado => true, :idoc => @oc_id.to_s}.to_json
 						my_hash = JSON.parse(resp_json)

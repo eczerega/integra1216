@@ -64,9 +64,25 @@ File.open("./init/tiempos.csv", "r") do |f|
 				 Tipo: contenido[2].to_s,
 				 Grupo_Proyecto: contenido[3].to_i,
 				 Unidades: contenido[4].to_s,
-				 Costo_produccion_unitario: contenido[5].to_i,
+				 Costo_produccion_unitario: contenido[5].to_f,
 				 Lote_Produccion: contenido[6].to_i,
 				 Tiempo_Medio_Producción: contenido[7].to_f
+			)
+	end
+end
+
+File.open("./init/datos_grupos.csv", "r") do |f|
+	f.each_line do |line|
+	if ! line.valid_encoding?
+	  line = line.encode("UTF-16be", :invalid=>:replace, :replace=>"?").encode('UTF-8')
+	end	
+		contenido = line.split(';')
+			InfoGrupo.create( 
+				 num_grupo: contenido[0].to_s,
+				 id_grupo: contenido[1].to_s,
+				 id_banco: contenido[2].to_s,
+				 id_almacen: contenido[3].to_s,
+				 ambiente: contenido[4].to_s
 			)
 	end
 end
