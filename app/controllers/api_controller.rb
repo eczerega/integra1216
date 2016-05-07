@@ -4,7 +4,7 @@ require 'net/http'
 class ApiController < ApplicationController
 	layout false
 	def generateHash (contenidoSignature)
-		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
 		return encoded_string
 	end
 	skip_before_filter :verify_authenticity_token
@@ -597,6 +597,7 @@ class ApiController < ApplicationController
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Get.new(url)
 		@hashi_get = 'INTEGRACION grupo12:'+generateHash('GET').to_s
+		puts @hashi_get
 		request["authorization"] = @hashi_get
 		request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
 		request["cache-control"] = 'no-cache'
@@ -754,6 +755,7 @@ class ApiController < ApplicationController
 					#@cantidad = got_stock_internal(@oc_sku)
 					@cantidad = contarTotal2(@oc_sku)
 					puts @cantidad
+					puts "asd"
 					if @cantidad.to_i >= @oc_cantidad.to_i
 						#RETORNAR {aceptado,idoc}
 						@response = {:aceptado => true, :idoc => @id_oc}
