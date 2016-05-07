@@ -53,6 +53,17 @@ class OrdersController < ApplicationController
 		return res.body
 	end
 
+	def getEnviarTrx(num_grupo,trx_id,fact_id)
+		url_req = "http://integra"+num_grupo.to_s+".ing.puc.cl/api/pagos/recibir/"+oc_id+"?idfactura="+fact_id
+
+		url = URI.parse(url_req)
+		req = Net::HTTP::Get.new(url.to_s)
+		res = Net::HTTP.start(url.host, url.port) {|http|
+		  http.request(req)
+		}
+		return res.body
+	end
+
 	def putBodegaJSONData(url_req, params, param_string)
       @hashi = 'INTEGRACION grupo12:'+generateHash('PUT'+param_string).to_s
       puts @hashi
@@ -112,6 +123,19 @@ class OrdersController < ApplicationController
       # end
   	end
 
+  	def crear_trx(monto, origenId, destinoId)
+		dinero = monto.to_s
+		url = URI("http://mare.ing.puc.cl/banco/trx")
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::Put.new(url)
+		request["content-type"] = 'application/json'
+		request["cache-control"] = 'no-cache'
+		request["postman-token"] = 'a6719103-e787-baf6-90db-0618b6f3da85'
+		request.body = "{\n    \"monto\": \""+ dinero +"\",\n    \"origen\": \""+ origenId +"\",\n    \"destino\": \""+ destinoId +"\"\n}"
+		response = http.request(request)
+		puts response.read_body
+	end
+
 	def index
 		@data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
 		
@@ -127,14 +151,14 @@ class OrdersController < ApplicationController
 	  sku_ = params[:sku].to_s
 
 	  grupo_proyecto = Tiempo.where(SKU:sku_).take[:Grupo_Proyecto]
-	  precio_producto = Tiempo.where(SKU:sku_).take[:Costo_produccion_unitario]
+	  precio_producto = Precio.where(SKU:sku_).take[:Precio_Unitario]
 	  tiempo_produccion_prod = Tiempo.where(SKU:sku_).take[:Tiempo_Medio_Producción]
 	  puts grupo_proyecto
 	  puts precio_producto
 	  puts tiempo_produccion_prod
 
-	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"produccion").id_grupo
-	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"produccion").id_grupo
+	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"desarrollo").id_grupo
+	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"desarrollo").id_grupo
 
 	  if id_proveedor=="572aac69bdb6d403005fb04d"
 	  	puts "yay :)"
@@ -160,6 +184,19 @@ class OrdersController < ApplicationController
 
 	  	response2 = getEnviarOC(grupo_proyecto,oc_id)
 	  	puts "VALIDACION_OC"+response2
+
+	  	if response2["aceptado"]
+	  		id_cliente_banco = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"desarrollo").id_banco
+	  		id_proveedor_banco = InfoGrupo.find_by(num_grupo:12,ambiente:"desarrollo").id_banco
+
+	  		trx_id=crear_trx(precio_producto*cantidad_.to_i,id_proveedor_banco,id_cliente_banco)["_id"]
+	  	
+	  		puts trx_id
+
+	  		getEnviarTrx(grupo_proyecto,trx_id)
+	  	else
+	  		puts "OC enviada no validada"
+	  	end
 
 	  	respond_to do |format|
           format.html {}
