@@ -770,18 +770,22 @@ class ApiController < ApplicationController
 						fact_resp = enviar_factura(@factura_id, @oc_cliente)
 						if fact_resp["validado"]
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
-							puts "FOC"+foc
+							puts "FOCaceptada"
+							puts foc
 							foc.estado = "factura aceptada por cliente"
+							foc.save
 							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
 							orden_compra.estado = 'aceptada'
-							foc.save
+							orden_compra.save
 						else
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
-							puts "FOC"+foc
+							puts "FOCrechazada"
+							puts foc
 							foc.estado = "factura rechazada por cliente"
+							foc.save
 							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
 							orden_compra.estado = 'anulada'
-							foc.save
+							orden_compra.save
 						end
 
 						resp_json = {:aceptado => true, :idoc => @oc_id.to_s}.to_json
