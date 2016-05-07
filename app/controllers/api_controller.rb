@@ -152,6 +152,8 @@ class ApiController < ApplicationController
 		request["postman-token"] = '852f5544-3be3-d8f2-e8eb-24db50cfc6cc'
 		request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"rechazo\"\r\n\r\n"+ respuesta +"\r\n-----011000010111000001101001--"
 		response = http.request(request)
+		orden = OcRecibida.find_by(id_dev: id_oc)
+		orden.rechazo = respuesta
 		return response
 	end
 
@@ -165,6 +167,8 @@ class ApiController < ApplicationController
 		request["postman-token"] = '852f5544-3be3-d8f2-e8eb-24db50cfc6cc'
 		request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"id\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"anulacion\"\r\n\r\n"+ respuesta +"\r\n-----011000010111000001101001--"
 		response = http.request(request)
+		orden = OcRecibida.find_by(id_dev: id_oc)
+		orden.anulacion = respuesta
 		return response
 	end
 
@@ -227,33 +231,8 @@ class ApiController < ApplicationController
   	end
 
 	def enviar_factura(id_factura, id_cliente)
-	  	num_grupo="0"
-
-	  	if id_cliente=="571262b8a980ba030058ab4f"
-	  		num_grupo="1"
-	  	elsif id_cliente=="571262b8a980ba030058ab50"
-	  		num_grupo="2"
-	  	elsif id_cliente=="571262b8a980ba030058ab51"
-	  		num_grupo="3"
-	  	elsif id_cliente=="571262b8a980ba030058ab52"
-	  		num_grupo="4"
-	  	elsif id_cliente=="571262b8a980ba030058ab53"
-	  		num_grupo="5"
-	  	elsif id_cliente=="571262b8a980ba030058ab54"
-	  		num_grupo="6"
-	  	elsif id_cliente=="571262b8a980ba030058ab55"
-	  		num_grupo="7"
-	  	elsif id_cliente=="571262b8a980ba030058ab56"
-	  		num_grupo="8"
-	  	elsif id_cliente=="571262b8a980ba030058ab57"
-	  		num_grupo="9"
-	  	elsif id_cliente=="571262b8a980ba030058ab58"
-	  		num_grupo="10"
-	  	elsif id_cliente=="571262b8a980ba030058ab59"
-	  		num_grupo="11"
-	  	elsif id_cliente=="571262b8a980ba030058ab5a"
-	  		num_grupo="12"
-	  	end
+	  	
+	  	num_grupo = InfoGrupo.find_by(id_grupo: id_cliente).num_grupo
 
 	  	url = URI("http://integra"+num_grupo+".ing.puc.cl/api/facturas/recibir/"+id_factura)
 
@@ -340,13 +319,12 @@ class ApiController < ApplicationController
 			puts foc
 			foc.estado = "factura pagada"
 			foc.save
-			orden = OcRecibidas.find_by(id_dev: @oc_id)
+			orden = OcRecibida.find_by(id_dev: @oc_id)
 			@oc_precioUnitario = orden.precio_unit
 			@oc_cantidad = orden.cantidad
 			@oc_sku = orden.sku
 			info = InfoGrupo.find_by(id_banco: @origen_trx)
 			almacen_destino = info.id_almacen
-
 			respond_to do |format|		
 			  format.html {}
 			  format.json { render :json => @response_default.to_json }
@@ -453,6 +431,8 @@ class ApiController < ApplicationController
       if cantidad <= stock_en_despacho
         puts "listos para despachar"
         faltante = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, cantidad, precio)
+      	tablasku = SkuStock.find_by(SKU: sku)
+      	tablasku.stock -= cantidad
       else
         puts "debemos mover cosas"
         @mis_almacenes = ["571262aba980ba030058a5d7", "571262aba980ba030058a5c6", "571262aba980ba030058a5c8", "571262aba980ba030058a5d6"]
@@ -476,6 +456,8 @@ class ApiController < ApplicationController
             end
           end
           puts "despachamos!"
+          tablasku = SkuStock.find_by(SKU: sku)
+      	  tablasku.stock -= cantidad
           ###despachar()
         else
           ###NO SE PUEDE DESPACHAR
@@ -592,13 +574,10 @@ class ApiController < ApplicationController
 			total += contarProductos(almacen, sku)
 	    end
 	    return total
-	 #    hash_res = {:stock=>total,:sku=>sku}
+	end
 
-  #   	respond_to do |format|
-		# 	format.html {}
-		# 	format.json { render :json => hash_res}
-		# 	format.js
-		# end	
+	def contarSkuLocal(sku)
+		return SkuStock.find_by(SKU: sku).stock
 	end
 
 	def got_stock_string
@@ -679,7 +658,7 @@ class ApiController < ApplicationController
 			@oc_cantidad = @response_json[0]["cantidad"]
 			@oc_canal = @response_json[0]["canal"]
 			@oc_creado = @response_json[0]["created_at"]
-
+			OcRecibida.create(id_dev:@oc_id, created_at_dev: @oc_creado, canal:@oc_canal, sku:@oc_sku, cantidad:@oc_cantidad, precio_unit:@oc_precioUnitario, entrega_at:@oc_fechaEntrega, despacho_at:@oc_fechaEntrega, estado:@oc_estado, rechazo:'', anulacion:'', id_factura_dev:'')
 
 
 			if !(@oc_proveedor.to_s == "572aac69bdb6d403005fb04d")
@@ -749,8 +728,6 @@ class ApiController < ApplicationController
 						#GENERAR
 						@factura_id = generar_factura(@oc_id)
 						puts @factura_id
-						OcRecibida.create(id_dev:@oc_ic, created_at_dev:@oc_creado, canal:@oc_canal, sku:@oc_sku, cantidad:@oc_cantidad, precio_unit:@oc_precioUnitario, entrega_at:@oc_fechaEntrega, despacho_at:@oc_fechaEntrega, estado:@oc_estado, rechazo:'', anulacion:'', id_factura_dev:@factura_id)
-						
 						FacturaOc.create(factura_id:@factura_id, oc_id:@id_oc, estado:"creada")
 						#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
 						fact_resp = enviar_factura(@factura_id, @oc_cliente)
