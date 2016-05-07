@@ -70,6 +70,56 @@ h1
 			      </p>
 			      </li>
 
+			      <li>
+			      <p>
+			      <em><b>integra12.ing.puc.cl/api/facturas/recibir/.:idfact (GET)</b></em> 
+			      Descripción: Recibe el ID de una factura y entrega un JSON informando si se validó la factura o no. La validación depende si el precio de la factura es el mismo acordado en la orden de compra y si la factura está a nombre del cliente o no.<br>
+			      Parámetros: Ninguno<br>
+			      Retorno: HTML
+					<pre>
+					<code>
+						{
+							“validado”: boolean, 
+							“idfactura”: string
+						}
+					</code>
+					</pre>
+			      </p>
+			      </li>
+
+			      <li>
+			      <p>
+			      <em><b>integra12.ing.puc.cl/api/pagos/recibir/.:idtrx?idfactura=.:idfactura (GET)</b></em> 
+			      Descripción: Recibe el ID de una transacción y el de una factura y entrega un JSON informando si se validó la transacción de acuerdo a la información contenida en la factura. La validación depende si el monto de la transacción es el mismo estipulado en la factura y si el destino de la factura es el mismo que el del proveedor.<br>
+			      Parámetros: Ninguno<br>
+			      Retorno: HTML
+					<pre>
+					<code>
+						{
+							“validado”: boolean, 
+							“idtrx": string
+						}
+					</code>
+					</pre>
+			      </p>
+			      </li>
+
+				<li>
+			      <p>
+			      <em><b>integra12.ing.puc.cl/api/despachos/recibir/.:idfactura (GET)</b></em> 
+			      Descripción: Recibe el ID de una factura y entrega un JSON informando si se validó la recepción de los productos asociados a la orden de compra asociada a la factura. La validación depende si al revisar la DB de productos local hay una diferencia con lo que arroja el consumir la API de bodega.<br>
+			      Parámetros: Ninguno<br>
+			      Retorno: HTML
+					<pre>
+					<code>
+						{
+							“validado”: boolean, 
+						}
+					</code>
+					</pre>
+			      </p>
+			      </li>
+
 			   </ol>
 			</div>						
 		</div>
