@@ -735,14 +735,14 @@ class ApiController < ApplicationController
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
 							puts foc
 							foc.estado = "factura aceptada por cliente"
-							orden_compra = OcRecibida.find_by(id_dev:@oc_ic)
+							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
 							orden_compra.estado = 'aceptada'
 							foc.save
 						else
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
 							puts foc
 							foc.estado = "factura rechazada por cliente"
-							orden_compra = OcRecibida.find_by(id_dev:@oc_ic)
+							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
 							orden_compra.estado = 'anulada'
 							foc.save
 						end
