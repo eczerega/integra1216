@@ -10,12 +10,12 @@ require 'net/http'
 
 #permite generar el hash para las distintas autorizaciones, lo retorna
   def generateHash (contenidoSignature)
-    encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+    encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
     return encoded_string
   end
 
 def contarProductos(almacenId, sku)
-      url = URI("http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId="+almacenId)
+      url = URI("http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock?almacenId="+almacenId)
       http = Net::HTTP.new(url.host, url.port)
       request = Net::HTTP::Get.new(url)
       @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET'+ almacenId).to_s
@@ -35,7 +35,7 @@ def contarProductos(almacenId, sku)
 end
 
 def contarTotal(sku)
-	url = URI("http://integracion-2016-dev.herokuapp.com/bodega/almacenes")
+	url = URI("http://integracion-2016-prod.herokuapp.com/bodega/almacenes")
 	http = Net::HTTP.new(url.host, url.port)
 	request = Net::HTTP::Get.new(url)
 	@hashi_get = 'INTEGRACION grupo12:'+generateHash('GET').to_s
@@ -218,7 +218,7 @@ end
 #572aad42bdb6d403005fb742 pulmon
 #puts 'INTEGRACION grupo12:'+generateHash('GET').to_s
 #puts crear_trx(1, '571262c3a980ba030058ab65', '571262c3a980ba030058ab60')
-puts contarTotal('7')
+#puts contarTotal('7')
 #traspaso_interno('572aad42bdb6d403005fb6a1', '572aad42bdb6d403005fb69f', '15', 10)
 #puts traspaso_interno('572aad42bdb6d403005fb6a1', '572aad42bdb6d403005fb69f', sku, qty)
-#puts liberar_bodega_recepcion
+puts liberar_bodega_recepcion

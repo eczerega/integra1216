@@ -125,7 +125,7 @@ class OrdersController < ApplicationController
 
   	def crear_trx(monto, origenId, destinoId)
 		dinero = monto.to_s
-		url = URI("http://mare.ing.puc.cl/banco/trx")
+		url = URI("http://moto.ing.puc.cl/banco/trx")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Put.new(url)
 		request["content-type"] = 'application/json'
@@ -149,14 +149,15 @@ class OrdersController < ApplicationController
 	  sku_ = params[:sku].to_s
 
 	  grupo_proyecto = Tiempo.where(SKU:sku_).take[:Grupo_Proyecto]
+	  puts grupo_proyecto
 	  precio_producto = Precio.where(SKU:sku_).take[:Precio_Unitario]
 	  tiempo_produccion_prod = Tiempo.where(SKU:sku_).take[:Tiempo_Medio_Producción]
 	  puts grupo_proyecto
 	  puts precio_producto
 	  puts tiempo_produccion_prod
 
-	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"desarrollo").id_grupo
-	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"desarrollo").id_grupo
+	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"produccion").id_grupo
+	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"produccion").id_grupo
 
 	  fecha_entrega = (DateTime.now+tiempo_produccion_prod.hours+1.hours).strftime('%Q')
 	  puts fecha_entrega
@@ -170,8 +171,9 @@ class OrdersController < ApplicationController
 	  	puts jsonbody
 
 	  	response = putOCJSONData("/crear",jsonbody,"b2b"+cantidad_+sku_+"12")
-	  	puts "OC"+response.to_s
+	  	puts "OC "+response.to_s
 	  	oc_id = JSON.parse(response)["_id"]
+
 	  	@oc_creado = JSON.parse(response)["created_at"]
 	  	@oc_canal = JSON.parse(response)["canal"]
 
@@ -186,7 +188,6 @@ class OrdersController < ApplicationController
 
 	  		# id_cliente_banco = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"produccion").id_banco
 	  		# id_proveedor_banco = InfoGrupo.find_by(num_grupo:12,ambiente:"produccion").id_banco
-
 	  		# trx_id=crear_trx(precio_producto*cantidad_.to_i,id_proveedor_banco,id_cliente_banco)["_id"]
 	  	
 	  		# puts trx_id
@@ -196,14 +197,14 @@ class OrdersController < ApplicationController
 	          format.html
 	          format.json { render :json => {:message => "Success"} }
 	          format.js
-	      	end  
+	      	end
 	  	else
 	  		puts "OC enviada no validada"
 	  		respond_to do |format|
 	          format.html
 	          format.json { render :json => {:message => "Success"} }
 	          format.js
-	      	end  
+	      	end
 	  	end
 	  else
 	  	puts "No hay stock suficiente de ese producto para comprar"

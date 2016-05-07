@@ -12,7 +12,7 @@ require 'net/http'
 
 #permite generar el hash para las distintas autorizaciones, lo retorna
 def generateHash (contenidoSignature)
-    encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+    encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
     return encoded_string
 end
 
@@ -42,7 +42,7 @@ def putJSONData(url_req, params)
 end
 
 def generar_factura(id_oc)
-      url = URI("http://mare.ing.puc.cl/facturas/")
+      url = URI("http://moto.ing.puc.cl/facturas/")
     http = Net::HTTP.new(url.host, url.port)
 
     request = Net::HTTP::Put.new(url)
@@ -261,5 +261,5 @@ sku = '7'
 cantidad = 2
 #precio = 941
 #traspaso_interno('571262aba980ba030058a5c6', '571262aba980ba030058a5c8', sku, 155)
-#puts generar_factura('572c2d9dacbda70300e289e1')
+puts generar_factura('572e30c6b190270300892401')
 #preparar_despacho(oc, sku, cantidad, precio, almacenId)
