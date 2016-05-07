@@ -156,11 +156,112 @@ class ProduccionsController < ApplicationController
       end
     end
   end
+
+    def ApiProducirMpWeb(sku, num_batch)
+    
+
+    if sku!=7 && sku!=15
+      puts "Nosotros no producimos ese producto"
+    else
+      puts "Vas a producir el sku: "+sku.to_s+" con "+num_batch.to_s+" número de batchs"
+      costo_unitario=0
+      cant_sku=0
+
+      if sku==7
+        cant_sku=1000
+        costo_unitario=941*cant_sku
+      elsif sku==15
+        cant_sku=480
+        costo_unitario=969*cant_sku
+      end
+
+      costo_prod=costo_unitario*num_batch
+      cant_prod=num_batch*cant_sku
+      puts "El costo unitario por batch es "+costo_unitario.to_s+" y el costo total de esta producción es "+costo_prod.to_s
+
+      url_bodega = "http://integracion-2016-prod.herokuapp.com/bodega/"
+      url_banco = "http://moto.ing.puc.cl/banco/"
+
+
+      @response = getBancoJSONData("cuenta/572aac69bdb6d403005fb05a")
+      saldo = getInfoFromJSON(@response,"saldo")
+      
+      puts saldo
+
+      if  true
+        @response2 = getBodegaJSONData("fabrica/getCuenta","")
+        cuenta_id = JSON.parse(@response2)["cuentaId"]
+        puts cuenta_id
+
+        aux_hash={:monto=>costo_prod, :origen=>"572aac69bdb6d403005fb05a", :destino=>cuenta_id}
+        jsonbody = JSON.generate(aux_hash)
+        puts jsonbody
+
+        @response3 = putBancoJSONData('trx',jsonbody)
+        puts @response3
+        if @response3=="error" || @response3=="request_error"
+          puts "TRX error, can't continue"
+        else
+          trx_id = JSON.parse(@response3)["_id"]
+          puts trx_id
+
+          aux_hash2 = {:sku=>sku.to_s, :trxId=>trx_id, :cantidad=>cant_prod}
+          jsonbody2 = JSON.generate(aux_hash2)
+
+          @response4 = putBodegaJSONData("fabrica/fabricar",jsonbody2,sku.to_s+cant_prod.to_s+trx_id)
+          puts @response4
+
+        end
+      else
+        puts "No hay saldo suficiente para producir"
+      end 
+
+      respond_to do |format|
+        format.json {  }
+      end
+    end
+  end
   # GET /produccions
   # GET /produccions.json
   def index
     @produccions = Produccion.all
   end
+
+
+
+
+#WEB FRONTEND
+
+
+def crear_orden_web
+    
+
+  begin
+    sku = params[:sku].to_i
+    num_batch = params[:cantidad].to_i
+
+    ApiProducirMpWeb(sku, num_batch)
+    puts 'todo ok'
+
+
+   @ans='producto mandado a hacer'
+      respond_to do |format|
+      format.js { render layout: false, content_type: 'text/javascript' }
+      end
+  rescue Exception => e
+    @ans = 'error interno'
+    puts e.to_s
+    respond_to do |format|
+    format.js { render layout: false, content_type: 'text/javascript' }
+    end
+  end
+
+
+end
+
+#FIN WEB FRONTEND
+
+
 
   # GET /produccions/1
   # GET /produccions/1.json

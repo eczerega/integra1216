@@ -1,7 +1,127 @@
-<h3>Todos los almacenes:</h3>
+<style type="text/css">
+    
+
+    a:visited {
+    color: white;
+}
+
+
+</style>
+
 <%= @all_data %>
-<br>
-<h3>Todos los id de almacenes:</h3>
-<%= @data %>
-<h3>Todos los skus:</h3>
-<%= @all_skus %>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">
+            Dashboard <small>Comprar productos</small>
+        </h1>
+        <ol class="breadcrumb">
+            <li class="active">
+                <i class="fa fa-dashboard"></i> /Dashboard/comprar
+            </li>
+        </ol>
+    </div>
+</div>
+<!-- /.row -->
+    <div class="container">
+         <div class="row" >
+                <div class="col-md-3">
+                     
+                    <img src=<%= image_path 'cerveza.jpg' %> class="img-responsive img-thumbnail" alt=""/>
+                     <h4>Cerveza</h4>
+                    <p>
+                        Cantidad: <%= @all_data_cerveza %>
+                    </p>
+<%= form_tag("/api/crear_orden_web", method: "get", :remote => true) do %>
+  <%= text_field_tag(:cantidad) %>
+  <input type="hidden" name="sku" value="34">
+  <%= submit_tag("Comprar") %>
+<% end %>
+
+                    </div>
+                <div class="col-md-3">
+                     
+                    <img src=<%= image_path 'leche.png' %> class="img-responsive img-thumbnail" alt=""/>
+                     <h4>Leche</h4>
+                    <p>
+                        Cantidad: <%= @all_data_leche %>
+                    </p>
+<%= form_tag("/api/crear_orden_web", method: "get", :remote => true) do %>
+  <%= text_field_tag(:cantidad) %>
+  <input type="hidden" name="sku" value="7">
+  <%= submit_tag("Comprar") %>
+<% end %>
+
+                    </div>
+             	<div class="col-md-3">
+                     
+                    <img src=<%= image_path 'tela.jpg' %> class="img-responsive img-thumbnail" alt=""/>
+                     <h4>Tela de algodón</h4>
+                    <p>
+                        Cantidad: <%= @all_data_tela_arena %>
+                    </p>
+<%= form_tag("/api/crear_orden_web", method: "get", :remote => true) do %>
+  <%= text_field_tag(:cantidad) %>
+  <input type="hidden" name="sku" value="30">
+  <%= submit_tag("Comprar") %>
+<% end %>
+
+                    </div>
+        </div>
+    </div>
+    <div class="container">
+     <div class="row" >
+            <div class="col-md-3">
+                 
+                    <img src=<%= image_path 'avena.jpg' %> class="img-responsive img-thumbnail" alt=""/>
+                     <h4>Avena</h4>
+                    <p>
+                        Cantidad: <%= @all_data_avena %>
+                    </p>
+<%= form_tag("/api/crear_orden_web", method: "get", :remote => true) do %>
+  <%= text_field_tag(:cantidad) %>
+  <input type="hidden" name="sku" value="15">
+  <%= submit_tag("Comprar") %>
+<% end %>
+
+                    </div>
+            <div class="col-md-3">
+                 
+                    <img src=<%= image_path 'pan.jpg' %> class="img-responsive img-thumbnail" alt=""/>
+                     <h4>Pan hallula</h4>
+                    <p>
+                        Cantidad: <%= @all_data_leche %>
+                    </p>
+                    <%= form_tag("/api/crear_orden_web", method: "get", :remote => true) do %>
+                      <%= text_field_tag(:cantidad) %>
+                      <input type="hidden" name="sku" value="51">
+                      <%= submit_tag("Comprar") %>
+                    <% end %>
+
+                    </div>
+         	<div class="col-md-3">
+
+    </div>
+</div>
+
+
+
+    <!-- JAVASCRIPT FILES PLACED AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
+    <!-- CORE JQUERY  -->
+    <script src="assets/plugins/jquery-1.10.2.js"></script>
+    <!-- BOOTSTRAP SCRIPTS  -->
+    <script src="assets/plugins/bootstrap.js"></script>
+    <!-- JQUERY EASING  -->
+    <script src="assets/plugins/jquery.easing.min.js"></script>
+    <script>
+        //FOR SCROLLING FUNCTIONING OF LINKS USING EASING PLUGIN
+        $(function () {
+            $('.navbar a').bind('click', function (event) {
+                var $anchor = $(this);
+                $('html, body').stop().animate({
+                    scrollTop: $($anchor.attr('href')).offset().top
+                }, 1500, 'easeInOutExpo');
+                event.preventDefault();
+            });
+        });
+    </script>
