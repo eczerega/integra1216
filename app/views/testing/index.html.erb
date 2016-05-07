@@ -90,7 +90,7 @@
                     <img src=<%= image_path 'pan.jpg' %> class="img-responsive img-thumbnail" alt=""/>
                      <h4>Pan hallula</h4>
                     <p>
-                        Cantidad: <%= @all_data_leche %>
+                        Cantidad: <%= @all_data_hallulla %>
                     </p>
                     <%= form_tag("/api/crear_orden_web", method: "get", :remote => true) do %>
                       <%= text_field_tag(:cantidad) %>
