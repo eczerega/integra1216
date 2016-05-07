@@ -117,6 +117,18 @@ class ApiController < ApplicationController
 		puts response.read_body
 	end
 
+	def anular_factura(facturaId, motivo)
+		url = URI("http://mare.ing.puc.cl/facturas/cancel")
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::Post.new(url)
+		request["content-type"] = 'application/json'
+		request["cache-control"] = 'no-cache'
+		request["postman-token"] = '485a9988-376e-7e60-d24f-6b728a38ed7f'
+		request.body = "{\n    \"id\": \""+ facturaId +"\",\n    \"motivo\": \""+ motivo +"\"\n}"
+		response = http.request(request)
+		puts response.read_body
+	end
+
 	def aceptar_orden(id_oc)
 	  	url = URI("http://mare.ing.puc.cl/oc/recepcionar/"+id_oc)
 		http = Net::HTTP.new(url.host, url.port)
@@ -200,6 +212,11 @@ class ApiController < ApplicationController
 			end
 		else
 			rechazar_factura(@given_idfactura, motivo)
+			foc = FacturaOc.find_by(oc_id: oc_id.to_s, factura_id: @given_idfactura)
+			puts foc
+			foc.estado = "factura rechazada"
+			foc.save
+
 			@response_ok =  {:validado => false, :idfactura => @given_idfactura }
 			respond_to do |format|		
 			  format.html {}
@@ -292,6 +309,11 @@ class ApiController < ApplicationController
 		#EN ESTE CASO HAY QUE ESTABLECER POLITICA DE DEPOSITO POR CANTIDAD INCORRECTA
 		if @destino_trx != @cuenta_banco
 	    	@response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cuenta destino errónea' }
+	    	anular_factura(@given_idfactura,"Cuenta destino errónea")
+	    	foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @given_idfactura)
+			puts foc
+			foc.estado = "factura anulada"
+			foc.save
 
 	    	respond_to do |format|
 	        	format.html {}
@@ -299,13 +321,18 @@ class ApiController < ApplicationController
 	        	format.js
 	    	end
 		elsif @monto_trx != @monto_factura
-		  @response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cantidad transferida errónea' }
+			@response_error =  {:validado => false, :idtrx => @given_idtrx, :reason => 'Cantidad transferida errónea' }
+			anular_factura(@given_idfactura,"Cantidad transferida errónea")
+	    	foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @given_idfactura)
+			puts foc
+			foc.estado = "factura anulada"
+			foc.save
 
-	      respond_to do |format|
+	    	respond_to do |format|
 	          format.html {}
 	          format.json { render :json => @response_error.to_json }
 	          format.js
-	      end
+	    	end
 	    else 
 	    	@response_default =  {:validado => true, :idtrx =>  @given_idtrx}
 			foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @given_idfactura)
@@ -644,6 +671,14 @@ class ApiController < ApplicationController
 
 			if !(@oc_proveedor.to_s == "572aac69bdb6d403005fb04d")
 				rechazar_orden(@oc_id, 'Grupo no corresponde')
+				resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
+				my_hash = JSON.parse(resp_json)
+				respond_to do |format|
+				  format.html {}
+				  format.json { render :json => my_hash}
+				  format.js
+				end
+			elsif @oc_estado!="creada"
 				resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 				my_hash = JSON.parse(resp_json)
 				respond_to do |format|
