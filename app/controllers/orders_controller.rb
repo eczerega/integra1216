@@ -149,14 +149,15 @@ class OrdersController < ApplicationController
 	  sku_ = params[:sku].to_s
 
 	  grupo_proyecto = Tiempo.where(SKU:sku_).take[:Grupo_Proyecto]
+	  puts grupo_proyecto
 	  precio_producto = Precio.where(SKU:sku_).take[:Precio_Unitario]
 	  tiempo_produccion_prod = Tiempo.where(SKU:sku_).take[:Tiempo_Medio_Producción]
 	  puts grupo_proyecto
 	  puts precio_producto
 	  puts tiempo_produccion_prod
 
-	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"desarrollo").id_grupo
-	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"desarrollo").id_grupo
+	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"produccion").id_grupo
+	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"produccion").id_grupo
 
 	  if id_proveedor=="572aac69bdb6d403005fb04d"
 	  	puts "yay :)"
@@ -176,22 +177,22 @@ class OrdersController < ApplicationController
 	  	puts jsonbody
 
 	  	response = putOCJSONData("/crear",jsonbody,"b2b"+cantidad_+sku_+"12")
-	  	puts "OC"+response.to_s
+	  	puts "OC "+response.to_s
 	  	oc_id = JSON.parse(response)["_id"]
-	  	puts "OC_ID"+oc_id
+	  	puts "OC_ID "+oc_id
 
 	  	response2 = getEnviarOC(grupo_proyecto,oc_id)
 	  	puts "VALIDACION_OC"+response2
 
 	  	if response2["aceptado"]
-	  		id_cliente_banco = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"desarrollo").id_banco
-	  		id_proveedor_banco = InfoGrupo.find_by(num_grupo:12,ambiente:"desarrollo").id_banco
+	  		id_cliente_banco = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"produccion").id_banco
+	  		id_proveedor_banco = InfoGrupo.find_by(num_grupo:12,ambiente:"produccion").id_banco
 
 	  		trx_id=crear_trx(precio_producto*cantidad_.to_i,id_proveedor_banco,id_cliente_banco)["_id"]
 	  	
 	  		puts trx_id
 
-	  		getEnviarTrx(grupo_proyecto,trx_id)
+	  		puts getEnviarTrx(grupo_proyecto,trx_id)
 	  	else
 	  		puts "OC enviada no validada"
 	  	end

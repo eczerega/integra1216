@@ -32,7 +32,10 @@ class ApiController < ApplicationController
 		request["postman-token"] = 'a6719103-e787-baf6-90db-0618b6f3da85'
 		request.body = "{\n    \"monto\": \""+ dinero +"\",\n    \"origen\": \""+ origenId +"\",\n    \"destino\": \""+ destinoId +"\"\n}"
 		response = http.request(request)
-		puts response.read_body
+		@oc_array = JSON.parse(response.body)
+		puts @oc_array
+		@oc_json = JSON.parse(@oc_array.to_json)
+		return @oc_json["_id"]
 	end
 
 	def crear_trx_exp()
@@ -54,6 +57,24 @@ class ApiController < ApplicationController
 	          format.json { render :json => response.read_body }
 	          format.js
 	     end
+	end
+
+	def enviar_trx(id_trx, id_proveedor, id_factura)
+	  	
+	  	num_grupo = InfoGrupo.find_by(id_grupo: id_proveedor).num_grupo
+
+	  	url = URI("http://integra"+num_grupo+".ing.puc.cl/api/pagos/recibir/"+id_trx+"?idfactura="+id_factura)
+
+		http = Net::HTTP.new(url.host, url.port)
+
+		request = Net::HTTP::Get.new(url)
+		request["cache-control"] = 'no-cache'
+		request.body = "{\n    \"oc\": \""+id_factura+"\",\n}"
+		@response = http.request(request)
+		puts @response.body
+		@response_json = JSON.parse(@response.body)
+		puts @response_json
+		return @response_json
 	end
 
 	def getOCJSON(id_oc)
@@ -103,6 +124,18 @@ class ApiController < ApplicationController
 	  @response_json = JSON.parse(@response.body)
 	  @factura_id = @response_json["_id"]
 	  return @factura_id
+	end
+
+	def pagar_factura(facturaId)
+		url = URI("http://moto.ing.puc.cl/facturas/pay")
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::Post.new(url)
+		request["content-type"] = 'application/json'
+		request["cache-control"] = 'no-cache'
+		request["postman-token"] = '485a9988-376e-7e60-d24f-6b728a38ed7f'
+		request.body = "{\n    \"id\": \""+ facturaId +	"\"\n}"
+		response = http.request(request)
+		puts response.read_body
 	end
 
 	def rechazar_factura(facturaId, motivo)
@@ -208,12 +241,18 @@ class ApiController < ApplicationController
 			foc.estado = "factura por pagar"
 			foc.save
 
+			cuenta_origen = InfoGrupo.find_by(id_grupo: json_oc["cliente"]).id_banco
+			cuenta_destino = InfoGrupo.find_by(id_grupo: json_oc["proveedor"]).id_banco
+			monto = json_factura["total"]
+			@trx_id = crear_trx(monto, cuenta_origen, cuenta_destino)
+			puts "transaccion creada"
 			@response_ok =  {:validado => true, :idfactura => @given_idfactura }
 			respond_to do |format|		
 			  format.html {}
 			  format.json { render :json => @response_ok.to_json }
 			  format.js
 			end
+			enviar_trx(@trx_id, json_oc["proveedor"], @given_idfactura)
 		else
 			rechazar_factura(@given_idfactura, motivo)
 			foc = FacturaOc.find_by(oc_id: oc_id.to_s, factura_id: @given_idfactura)
@@ -233,14 +272,10 @@ class ApiController < ApplicationController
 	def enviar_factura(id_factura, id_cliente)
 	  	
 	  	num_grupo = InfoGrupo.find_by(id_grupo: id_cliente).num_grupo
-
 	  	url = URI("http://integra"+num_grupo+".ing.puc.cl/api/facturas/recibir/"+id_factura)
-
 		http = Net::HTTP.new(url.host, url.port)
-
 		request = Net::HTTP::Get.new(url)
 		request["cache-control"] = 'no-cache'
-
 		@response = http.request(request)
 		@response_json = JSON.parse(@response.body)
 		puts @response_json
@@ -319,6 +354,7 @@ class ApiController < ApplicationController
 			puts foc
 			foc.estado = "factura pagada"
 			foc.save
+			pagar_factura(@given_idfactura)
 			orden = OcRecibida.find_by(id_dev: @oc_id)
 			@oc_precioUnitario = orden.precio_unit
 			@oc_cantidad = orden.cantidad
@@ -422,7 +458,7 @@ class ApiController < ApplicationController
  	end
 
 	def moverProductos(id_oc, almacenId, destinoId, sku, cantidad, faltante, precio)
-	  @almacen_despacho = '571262aba980ba030058a5c7'
+	  @almacen_despacho = '572aad42bdb6d403005fb6a0'
 	  url = URI("http://integracion-2016-prod.herokuapp.com/bodega/stock?almacenId=" + almacenId + "&sku=" + sku + "&limit=199" )
       http = Net::HTTP.new(url.host, url.port)
       request = Net::HTTP::Get.new(url)
@@ -456,21 +492,21 @@ class ApiController < ApplicationController
 
   	def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
 
-      #571262aba980ba030058a5c7 despacho
-      #571262aa980ba030058a5c6 recepcion
-      #571262aba980ba030058a5d7 pulmon
-      #571262aba980ba030058a5c8 otra
-      #571262aba980ba030058a5d6 otra
-      almacen_despacho = '571262aba980ba030058a5c7'
+      #572aad42bdb6d403005fb6a0 despacho
+      #572aad42bdb6d403005fb69f recepcion
+      #572aad42bdb6d403005fb742 pulmon
+      #572aad42bdb6d403005fb6a1 otra
+      #572aad42bdb6d403005fb741 otra
+      almacen_despacho = '572aad42bdb6d403005fb6a0'
       stock_en_despacho = contarProductos(almacen_despacho, sku)
       if cantidad <= stock_en_despacho
         puts "listos para despachar"
         faltante = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, cantidad, precio)
-      	tablasku = SkuStock.find_by(SKU: sku)
-      	tablasku.stock -= cantidad
+      	#tablasku = SkuStock.find_by(SKU: sku)
+      	#tablasku.stock -= cantidad
       else
         puts "debemos mover cosas"
-        @mis_almacenes = ["571262aba980ba030058a5d7", "571262aba980ba030058a5c6", "571262aba980ba030058a5c8", "571262aba980ba030058a5d6"]
+        @mis_almacenes = ["572aad42bdb6d403005fb742", "572aad42bdb6d403005fb69f", "572aad42bdb6d403005fb6a1", "572aad42bdb6d403005fb741"]
         stock_otras_bodegas = 0
         faltante = cantidad - stock_en_despacho
         ###REVISO SI EN TODOS MIS ALMACENES TENGO STOCK
@@ -491,8 +527,8 @@ class ApiController < ApplicationController
             end
           end
           puts "despachamos!"
-          tablasku = SkuStock.find_by(SKU: sku)
-      	  tablasku.stock -= cantidad
+          #tablasku = SkuStock.find_by(SKU: sku)
+      	  #tablasku.stock -= cantidad
           ###despachar()
         else
           ###NO SE PUEDE DESPACHAR
@@ -755,7 +791,6 @@ class ApiController < ApplicationController
 					#@cantidad = got_stock_internal(@oc_sku)
 					@cantidad = contarTotal2(@oc_sku)
 					puts @cantidad
-					puts "asd"
 					if @cantidad.to_i >= @oc_cantidad.to_i
 						#RETORNAR {aceptado,idoc}
 						@response = {:aceptado => true, :idoc => @id_oc}
