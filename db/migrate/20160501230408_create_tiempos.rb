@@ -6,7 +6,7 @@ class CreateTiempos < ActiveRecord::Migration
       t.string :Tipo
       t.integer :Grupo_Proyecto
       t.string :Unidades
-      t.integer :Costo_produccion_unitario
+      t.float :Costo_produccion_unitario
       t.integer :Lote_Produccion
       t.float :Tiempo_Medio_Producción
 

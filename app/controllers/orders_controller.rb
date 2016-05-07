@@ -43,7 +43,7 @@ class OrdersController < ApplicationController
 	end
 
 	def getEnviarOC(num_grupo,oc_id)
-		url_req = "http://integra"+num_grupo.to_s+".ing.puc.cl/api/oc/recibir/"+oc_id+".json"
+		url_req = "http://integra"+num_grupo.to_s+".ing.puc.cl/api/oc/recibir/"+oc_id
 
 		url = URI.parse(url_req)
 		req = Net::HTTP::Get.new(url.to_s)
@@ -79,7 +79,7 @@ class OrdersController < ApplicationController
 
   	def putOCJSONData(url_req, params, param_string)
       @hashi = 'INTEGRACION grupo12:'+generateHash('PUT'+param_string).to_s
-      puts @hashi
+      #puts @hashi
       
       url = URI.parse("http://mare.ing.puc.cl/oc"+url_req)
       req = Net::HTTP::Put.new(url.to_s,initheader = {'Content-Type' =>'application/json'})
@@ -89,16 +89,27 @@ class OrdersController < ApplicationController
         http.request(req)
       }
 
-      puts res.code
+      return res.body
 
-      if res.code[0]=='4' || res.code[0]=='5'
-        puts res.body
-        return "error"
-      elsif res.code[0]=='2'
-        return res.body
-      else
-        return "request_error"
-      end
+      # if res.code[0]=='4' || res.code[0]=='5'
+      #   respond_to do |format|
+      #     format.html {}
+      #     format.json { render :json => res.body }
+      #     format.js
+      # 	end
+      # elsif res.code[0]=='2'
+      #   respond_to do |format|
+      #     format.html {}
+      #     format.json { render :json => res.body }
+      #     format.js
+      # 	end
+      # else
+      #   respond_to do |format|
+      #     format.html {}
+      #     format.json { render :json => res.body }
+      #     format.js
+      # 	end
+      # end
   	end
 
 	def index
@@ -122,6 +133,9 @@ class OrdersController < ApplicationController
 	  puts precio_producto
 	  puts tiempo_produccion_prod
 
+	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"produccion").id_banco
+	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"produccion").id_banco
+
 	  fecha_entrega = (DateTime.now+tiempo_produccion_prod.hours+1.hours).strftime('%Q')
 	  puts fecha_entrega
 
@@ -129,19 +143,26 @@ class OrdersController < ApplicationController
 	  puts stock
 
 	  if stock.to_i>=cantidad_.to_i
-	  	oc_generada = {:canal=>"b2b",:cantidad=>cantidad_,:sku=>sku_,:cliente=>"12",:proveedor=>grupo_proyecto,:precioUnitario=>precio_producto,:fechaEntrega=>fecha_entrega.to_i,:notas=>"nada"}
+	  	oc_generada = {:canal=>"b2b",:cantidad=>cantidad_,:sku=>sku_,:cliente=>id_cliente,:proveedor=>id_proveedor,:precioUnitario=>precio_producto,:fechaEntrega=>fecha_entrega.to_i,:notas=>"nada"}
 	  	jsonbody = JSON.generate(oc_generada)
 	  	puts jsonbody
 
 	  	response = putOCJSONData("/crear",jsonbody,"b2b"+cantidad_+sku_+"12")
+	  	puts "OC"+response.to_s
 	  	oc_id = JSON.parse(response)["_id"]
-	  	puts oc_id
+	  	puts "OC_ID"+oc_id
+
+	  	response2 = getEnviarOC(grupo_proyecto,oc_id)
+	  	puts "VALIDACION_OC"+response2
+
+	  	respond_to do |format|
+          format.html {}
+          format.json { render :json => {} }
+          format.js
+      	end
+
 	  else
 	  	puts "No hay stock suficiente de ese producto para comprar"
 	  end	  
-
-	  respond_to do |format|
-        format.json {  }
-      end
 	end
 end

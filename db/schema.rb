@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160507000645) do
+ActiveRecord::Schema.define(version: 20160507001628) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,6 +40,16 @@ ActiveRecord::Schema.define(version: 20160507000645) do
     t.string   "factura_id"
     t.string   "oc_id"
     t.string   "estado"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "info_grupos", force: :cascade do |t|
+    t.string   "id_grupo"
+    t.string   "num_grupo"
+    t.string   "id_banco"
+    t.string   "id_almacen"
+    t.string   "ambiente"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -119,7 +129,7 @@ ActiveRecord::Schema.define(version: 20160507000645) do
     t.string   "Tipo"
     t.integer  "Grupo_Proyecto"
     t.string   "Unidades"
-    t.integer  "Costo_produccion_unitario"
+    t.float    "Costo_produccion_unitario"
     t.integer  "Lote_Produccion"
     t.float    "Tiempo_Medio_Producción"
     t.datetime "created_at",                null: false

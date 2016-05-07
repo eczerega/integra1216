@@ -702,15 +702,16 @@ class ApiController < ApplicationController
 			else
 				#REVISO MIS SKUS
 				puts @oc_sku
-				@mis_sku = Precio.all
+				@mis_sku = {7,15,30,34,51}
 				puts @mis_sku
 				seProduce= false
 				precioCorrecto= false
 				
 				@mis_sku.each do |sku|
-					puts sku.SKU
-					if sku.SKU==@oc_sku.to_s
+					puts sku
+					if sku==@oc_sku.to_s
 						seProduce = true
+						precio_unit_sku=Precio.find_by[SKU:sku].Precio_Unitario
 						if @oc_precioUnitario.to_i < sku.Precio_Unitario
 							rechazar_orden(@oc_id, 'Precio incorrecto')
 							resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json

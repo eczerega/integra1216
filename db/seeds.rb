@@ -64,7 +64,7 @@ File.open("./init/tiempos.csv", "r") do |f|
 				 Tipo: contenido[2].to_s,
 				 Grupo_Proyecto: contenido[3].to_i,
 				 Unidades: contenido[4].to_s,
-				 Costo_produccion_unitario: contenido[5].to_i,
+				 Costo_produccion_unitario: contenido[5].to_f,
 				 Lote_Produccion: contenido[6].to_i,
 				 Tiempo_Medio_Producción: contenido[7].to_f
 			)
