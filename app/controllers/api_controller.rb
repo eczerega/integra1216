@@ -770,14 +770,14 @@ class ApiController < ApplicationController
 						fact_resp = enviar_factura(@factura_id, @oc_cliente)
 						if fact_resp["validado"]
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
-							puts foc
+							puts "FOC"+foc
 							foc.estado = "factura aceptada por cliente"
 							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
 							orden_compra.estado = 'aceptada'
 							foc.save
 						else
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
-							puts foc
+							puts "FOC"+foc
 							foc.estado = "factura rechazada por cliente"
 							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
 							orden_compra.estado = 'anulada'
