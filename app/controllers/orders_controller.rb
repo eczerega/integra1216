@@ -8,7 +8,7 @@ class OrdersController < ApplicationController
 
 	layout false
 	def generateHash (contenidoSignature)
-		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
 		return encoded_string
 	end
 
@@ -32,7 +32,7 @@ class OrdersController < ApplicationController
 	end
 
 	def getStockJson(num_grupo,sku)
-		url_req = "http://integra"+num_grupo.to_s+".ing.puc.cl/api/consultar/"+sku+".json"
+		url_req = "http://integra"+num_grupo.to_s+".ing.puc.cl/api/consultar/"+sku
 
 		url = URI.parse(url_req)
 		req = Net::HTTP::Get.new(url.to_s)
@@ -68,7 +68,7 @@ class OrdersController < ApplicationController
       @hashi = 'INTEGRACION grupo12:'+generateHash('PUT'+param_string).to_s
       puts @hashi
       
-      url = URI.parse("http://mare.ing.puc.cl/oc"+url_req)
+      url = URI.parse("http://moto.ing.puc.cl/oc"+url_req)
       req = Net::HTTP::Put.new(url.to_s,initheader = {'Content-Type' =>'application/json'})
       req['Authorization'] = @hashi
       req.body=params
@@ -92,7 +92,7 @@ class OrdersController < ApplicationController
       @hashi = 'INTEGRACION grupo12:'+generateHash('PUT'+param_string).to_s
       #puts @hashi
       
-      url = URI.parse("http://mare.ing.puc.cl/oc"+url_req)
+      url = URI.parse("http://moto.ing.puc.cl/oc"+url_req)
       req = Net::HTTP::Put.new(url.to_s,initheader = {'Content-Type' =>'application/json'})
       req['Authorization'] = @hashi
       req.body=params
@@ -158,12 +158,6 @@ class OrdersController < ApplicationController
 	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"desarrollo").id_grupo
 	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"desarrollo").id_grupo
 
-	  if id_proveedor=="572aac69bdb6d403005fb04d"
-	  	puts "yay :)"
-	  else
-	  	puts "nay :("
-	  end
-
 	  fecha_entrega = (DateTime.now+tiempo_produccion_prod.hours+1.hours).strftime('%Q')
 	  puts fecha_entrega
 
@@ -171,39 +165,58 @@ class OrdersController < ApplicationController
 	  puts stock
 
 	  if stock.to_i>=cantidad_.to_i
-	  	oc_generada = {:canal=>"b2b",:cantidad=>cantidad_,:sku=>sku_,:cliente=>id_cliente,:proveedor=>id_proveedor,:precioUnitario=>precio_producto,:fechaEntrega=>fecha_entrega.to_i,:notas=>"nada"}
+	  	oc_generada = {:canal=>"b2b",:cantidad=>cantidad_,:sku=>sku_,:cliente=>id_cliente,:proveedor=>id_proveedor,:precioUnitario=>precio_producto,:fechaEntrega=>fecha_entrega.to_i,:notas=>"nada",:fechaDespacho=>fecha_entrega.to_i}
 	  	jsonbody = JSON.generate(oc_generada)
 	  	puts jsonbody
 
 	  	response = putOCJSONData("/crear",jsonbody,"b2b"+cantidad_+sku_+"12")
 	  	puts "OC"+response.to_s
 	  	oc_id = JSON.parse(response)["_id"]
+	  	@oc_creado = JSON.parse(response)["created_at"]
+	  	@oc_canal = JSON.parse(response)["canal"]
+
 	  	puts "OC_ID"+oc_id
 
 	  	response2 = getEnviarOC(grupo_proyecto,oc_id)
-	  	puts "VALIDACION_OC"+response2
+	  	puts response2
 
-	  	if response2["aceptado"]
-	  		id_cliente_banco = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"desarrollo").id_banco
-	  		id_proveedor_banco = InfoGrupo.find_by(num_grupo:12,ambiente:"desarrollo").id_banco
+	  	if response2["aceptado"]==true
+	  		puts "aceptada"
+	  		OcRecibida.create(id_dev:oc_id, created_at_dev: @oc_creado, canal:@oc_canal, sku:sku_, cantidad:cantidad_, precio_unit:precio_producto, entrega_at:fecha_entrega.to_i, despacho_at:fecha_entrega.to_i, estado:"aceptada esperando factura", rechazo:'', anulacion:'', id_factura_dev:'')
 
-	  		trx_id=crear_trx(precio_producto*cantidad_.to_i,id_proveedor_banco,id_cliente_banco)["_id"]
+	  		# id_cliente_banco = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"produccion").id_banco
+	  		# id_proveedor_banco = InfoGrupo.find_by(num_grupo:12,ambiente:"produccion").id_banco
+
+	  		# trx_id=crear_trx(precio_producto*cantidad_.to_i,id_proveedor_banco,id_cliente_banco)["_id"]
 	  	
-	  		puts trx_id
+	  		# puts trx_id
 
-	  		getEnviarTrx(grupo_proyecto,trx_id)
+	  		# getEnviarTrx(grupo_proyecto,trx_id)
+	  		respond_to do |format|
+	          format.html
+	          format.json { render :json => {:message => "Success"} }
+	          format.js
+	      	end  
 	  	else
 	  		puts "OC enviada no validada"
+	  		respond_to do |format|
+	          format.html
+	          format.json { render :json => {:message => "Success"} }
+	          format.js
+	      	end  
 	  	end
-
-	  	respond_to do |format|
-          format.html {}
-          format.json { render :json => {} }
-          format.js
-      	end
-
 	  else
 	  	puts "No hay stock suficiente de ese producto para comprar"
-	  end	  
+	  	respond_to do |format|
+          format.html
+          format.json { render :json => {:message => "Success"} }
+          format.js
+      	end  
+	  end
+	  	respond_to do |format|
+          format.html
+          format.json { render :json => {:message => "Success"} }
+          format.js
+      	end  
 	end
 end
