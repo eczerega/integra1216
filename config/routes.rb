@@ -31,7 +31,8 @@ Rails.application.routes.draw do
   get 'api/test_felipe' => 'produccions#ApiProducirMp'
   get 'api/test_felipe2' => 'orders#comprar_producto'
   get 'api/test_felipe3' => 'orders#unix_time'
-    get 'api/crear_orden_web' => 'produccions#crear_orden_web'
+  get 'api/crear_orden_web' => 'produccions#crear_orden_web'
+  get 'api/despachos/recibir/:idfactura' => 'api#recibir_despacho', defaults: {format: :json}
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
 

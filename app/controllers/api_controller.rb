@@ -4,7 +4,7 @@ require 'net/http'
 class ApiController < ApplicationController
 	layout false
 	def generateHash (contenidoSignature)
-		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
 		return encoded_string
 	end
 	skip_before_filter :verify_authenticity_token
@@ -24,7 +24,7 @@ class ApiController < ApplicationController
 
 	def crear_trx(monto, origenId, destinoId)
 		dinero = monto.to_s
-		url = URI("http://mare.ing.puc.cl/banco/trx")
+		url = URI("http://moto.ing.puc.cl/banco/trx")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Put.new(url)
 		request["content-type"] = 'application/json'
@@ -32,14 +32,17 @@ class ApiController < ApplicationController
 		request["postman-token"] = 'a6719103-e787-baf6-90db-0618b6f3da85'
 		request.body = "{\n    \"monto\": \""+ dinero +"\",\n    \"origen\": \""+ origenId +"\",\n    \"destino\": \""+ destinoId +"\"\n}"
 		response = http.request(request)
-		puts response.read_body
+		@oc_array = JSON.parse(response.body)
+		puts @oc_array
+		@oc_json = JSON.parse(@oc_array.to_json)
+		return @oc_json["_id"]
 	end
 
 	def crear_trx_exp()
 		origenId=params["origen"].to_s
 		destinoId=params["destino"].to_s
-		dinero = params["monto"].to_i
-		url = URI("http://mare.ing.puc.cl/banco/trx")
+		dinero = params["monto"].to_s
+		url = URI("http://moto.ing.puc.cl/banco/trx")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Put.new(url)
 		request["content-type"] = 'application/json'
@@ -56,8 +59,26 @@ class ApiController < ApplicationController
 	     end
 	end
 
+	def enviar_trx(id_trx, id_proveedor, id_factura)
+	  	
+	  	num_grupo = InfoGrupo.find_by(id_grupo: id_proveedor).num_grupo
+
+	  	url = URI("http://integra"+num_grupo+".ing.puc.cl/api/pagos/recibir/"+id_trx+"?idfactura="+id_factura)
+
+		http = Net::HTTP.new(url.host, url.port)
+
+		request = Net::HTTP::Get.new(url)
+		request["cache-control"] = 'no-cache'
+		request.body = "{\n    \"oc\": \""+id_factura+"\",\n}"
+		@response = http.request(request)
+		puts @response.body
+		@response_json = JSON.parse(@response.body)
+		puts @response_json
+		return @response_json
+	end
+
 	def getOCJSON(id_oc)
-		url = URI("http://mare.ing.puc.cl/oc/obtener/"+id_oc)
+		url = URI("http://moto.ing.puc.cl/oc/obtener/"+id_oc)
 
 		http = Net::HTTP.new(url.host, url.port)
 
@@ -73,7 +94,7 @@ class ApiController < ApplicationController
 	end
 
 	def getFacturaJSON(id_fac)
-		url = URI("http://mare.ing.puc.cl/facturas/"+id_fac)
+		url = URI("http://moto.ing.puc.cl/facturas/"+id_fac)
 
 		http = Net::HTTP.new(url.host, url.port)
 
@@ -90,7 +111,7 @@ class ApiController < ApplicationController
 	end
 
 	def generar_factura(id_oc)
-	  url = URI("http://mare.ing.puc.cl/facturas/")
+	  url = URI("http://moto.ing.puc.cl/facturas/")
 	  http = Net::HTTP.new(url.host, url.port)
 
 	  request = Net::HTTP::Put.new(url)
@@ -105,8 +126,20 @@ class ApiController < ApplicationController
 	  return @factura_id
 	end
 
+	def pagar_factura(facturaId)
+		url = URI("http://moto.ing.puc.cl/facturas/pay")
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::Post.new(url)
+		request["content-type"] = 'application/json'
+		request["cache-control"] = 'no-cache'
+		request["postman-token"] = '485a9988-376e-7e60-d24f-6b728a38ed7f'
+		request.body = "{\n    \"id\": \""+ facturaId +	"\"\n}"
+		response = http.request(request)
+		puts response.read_body
+	end
+
 	def rechazar_factura(facturaId, motivo)
-		url = URI("http://mare.ing.puc.cl/facturas/reject")
+		url = URI("http://moto.ing.puc.cl/facturas/reject")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Post.new(url)
 		request["content-type"] = 'application/json'
@@ -118,7 +151,7 @@ class ApiController < ApplicationController
 	end
 
 	def anular_factura(facturaId, motivo)
-		url = URI("http://mare.ing.puc.cl/facturas/cancel")
+		url = URI("http://moto.ing.puc.cl/facturas/cancel")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Post.new(url)
 		request["content-type"] = 'application/json'
@@ -130,7 +163,7 @@ class ApiController < ApplicationController
 	end
 
 	def aceptar_orden(id_oc)
-	  	url = URI("http://mare.ing.puc.cl/oc/recepcionar/"+id_oc)
+	  	url = URI("http://moto.ing.puc.cl/oc/recepcionar/"+id_oc)
 		http = Net::HTTP.new(url.host, url.port)
 
 		request = Net::HTTP::Post.new(url)
@@ -143,7 +176,7 @@ class ApiController < ApplicationController
 	end
 
 	def rechazar_orden(id_oc, respuesta)
-	  	url = URI("http://mare.ing.puc.cl/oc/rechazar/"+id_oc)
+	  	url = URI("http://moto.ing.puc.cl/oc/rechazar/"+id_oc)
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Post.new(url)
 		request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
@@ -158,7 +191,7 @@ class ApiController < ApplicationController
 	end
 
 	def anular_orden(id_oc, respuesta)
-	  	url = URI("http://mare.ing.puc.cl/oc/anular/"+id_oc)
+	  	url = URI("http://moto.ing.puc.cl/oc/anular/"+id_oc)
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Delete.new(url)
 		request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
@@ -208,12 +241,18 @@ class ApiController < ApplicationController
 			foc.estado = "factura por pagar"
 			foc.save
 
+			cuenta_origen = InfoGrupo.find_by(id_grupo: json_oc["cliente"]).id_banco
+			cuenta_destino = InfoGrupo.find_by(id_grupo: json_oc["proveedor"]).id_banco
+			monto = json_factura["total"]
+			@trx_id = crear_trx(monto, cuenta_origen, cuenta_destino)
+			puts "transaccion creada"
 			@response_ok =  {:validado => true, :idfactura => @given_idfactura }
 			respond_to do |format|		
 			  format.html {}
 			  format.json { render :json => @response_ok.to_json }
 			  format.js
 			end
+			enviar_trx(@trx_id, json_oc["proveedor"], @given_idfactura)
 		else
 			rechazar_factura(@given_idfactura, motivo)
 			foc = FacturaOc.find_by(oc_id: oc_id.to_s, factura_id: @given_idfactura)
@@ -233,14 +272,10 @@ class ApiController < ApplicationController
 	def enviar_factura(id_factura, id_cliente)
 	  	
 	  	num_grupo = InfoGrupo.find_by(id_grupo: id_cliente).num_grupo
-
 	  	url = URI("http://integra"+num_grupo+".ing.puc.cl/api/facturas/recibir/"+id_factura)
-
 		http = Net::HTTP.new(url.host, url.port)
-
 		request = Net::HTTP::Get.new(url)
 		request["cache-control"] = 'no-cache'
-
 		@response = http.request(request)
 		@response_json = JSON.parse(@response.body)
 		puts @response_json
@@ -257,7 +292,7 @@ class ApiController < ApplicationController
 	  	@given_idfactura = params[:idfactura]
 
 	  	#MONTO TRANSACCION
-	    url = URI("http://mare.ing.puc.cl/banco/trx/"+@given_idtrx)
+	    url = URI("http://moto.ing.puc.cl/banco/trx/"+@given_idtrx)
 		http = Net::HTTP.new(url.host, url.port)
 
 		request = Net::HTTP::Get.new(url)
@@ -284,7 +319,7 @@ class ApiController < ApplicationController
 		@monto_factura =  @factura_json["total"]
 
 
-		@cuenta_banco = "571262c3a980ba030058ab65"
+		@cuenta_banco = "572aac69bdb6d403005fb05a"
 
 		#EN ESTE CASO HAY QUE ESTABLECER POLITICA DE DEPOSITO POR CANTIDAD INCORRECTA
 		if @destino_trx != @cuenta_banco
@@ -319,6 +354,7 @@ class ApiController < ApplicationController
 			puts foc
 			foc.estado = "factura pagada"
 			foc.save
+			pagar_factura(@given_idfactura)
 			orden = OcRecibida.find_by(id_dev: @oc_id)
 			@oc_precioUnitario = orden.precio_unit
 			@oc_cantidad = orden.cantidad
@@ -338,7 +374,7 @@ class ApiController < ApplicationController
 	end
 
 	def mover_a_bodega(id_producto, id_almacen)
-      	url = URI("http://integracion-2016-dev.herokuapp.com/bodega/moveStock")
+      	url = URI("http://integracion-2016-prod.herokuapp.com/bodega/moveStock")
 	    http = Net::HTTP.new(url.host, url.port)
 	    request = Net::HTTP::Post.new(url)
 	    @hashi_get = 'INTEGRACION grupo12:'+generateHash('POST'+ id_producto + id_almacen).to_s
@@ -353,7 +389,7 @@ class ApiController < ApplicationController
 
 	def despachar(id_oc, sku, cantidad, producto, almacen_destino, precio)
 		price = precio.to_s
-		url = URI("http://integracion-2016-dev.herokuapp.com/bodega/moveStockBodega")
+		url = URI("http://integracion-2016-prod.herokuapp.com/bodega/moveStockBodega")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Post.new(url)
 		@hashi_get = 'INTEGRACION grupo12:'+generateHash('POST'+ producto + almacen_destino).to_s
@@ -366,8 +402,43 @@ class ApiController < ApplicationController
 		puts response.read_body 
   	end
 
+  	def avisar_despacho(almacenId)
+		grupo = InfoGrupo.find_by(id_almacen: almacenId).num_grupo
+		url = URI("http://integra"+grupo+".ing.puc.cl/api/despachos/recibir/"+id_factura)
+		http = Net::HTTP.new(url.host, url.port)
+		request = Net::HTTP::Get.new(url)
+		request["cache-control"] = 'no-cache'
+		@response = http.request(request)
+		@response_json = JSON.parse(@response.body)
+		puts @response_json
+	end
+
+	def recibir_despacho
+		@id_fac = params[:idfactura]
+		@id_oc = FacturaOc.find_by(factura_id: @id_fac).oc_id
+		@sku = OcRecibida.find_by(id_dev: @id_oc)
+		actual = SkuStock.find_by(SKU: @sku)
+		real = contarTotal2(@sku)
+		if actual == real
+			@response =  {:validado => 'false'}
+		    respond_to do |format|
+		      format.html {}
+		      format.json { render :json => @response.to_json }
+		      format.js
+		    end
+		else
+			SkuStock.find_by(SKU: @sku).stock = real
+			@response =  {:validado => 'true'}
+		    respond_to do |format|
+		      format.html {}
+		      format.json { render :json => @response.to_json }
+		      format.js
+		    end
+		end 
+	end
+
 	def contarProductos(almacenId, sku)
-      url = URI("http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId="+almacenId)
+      url = URI("http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock?almacenId="+almacenId)
       http = Net::HTTP.new(url.host, url.port)
       request = Net::HTTP::Get.new(url)
       @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET'+ almacenId).to_s
@@ -387,8 +458,8 @@ class ApiController < ApplicationController
  	end
 
 	def moverProductos(id_oc, almacenId, destinoId, sku, cantidad, faltante, precio)
-	  @almacen_despacho = '571262aba980ba030058a5c7'
-	  url = URI("http://integracion-2016-dev.herokuapp.com/bodega/stock?almacenId=" + almacenId + "&sku=" + sku + "&limit=199" )
+	  @almacen_despacho = '572aad42bdb6d403005fb6a0'
+	  url = URI("http://integracion-2016-prod.herokuapp.com/bodega/stock?almacenId=" + almacenId + "&sku=" + sku + "&limit=199" )
       http = Net::HTTP.new(url.host, url.port)
       request = Net::HTTP::Get.new(url)
       @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET'+ almacenId + sku).to_s
@@ -421,21 +492,21 @@ class ApiController < ApplicationController
 
   	def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
 
-      #571262aba980ba030058a5c7 despacho
-      #571262aa980ba030058a5c6 recepcion
-      #571262aba980ba030058a5d7 pulmon
-      #571262aba980ba030058a5c8 otra
-      #571262aba980ba030058a5d6 otra
-      almacen_despacho = '571262aba980ba030058a5c7'
+      #572aad42bdb6d403005fb6a0 despacho
+      #572aad42bdb6d403005fb69f recepcion
+      #572aad42bdb6d403005fb742 pulmon
+      #572aad42bdb6d403005fb6a1 otra
+      #572aad42bdb6d403005fb741 otra
+      almacen_despacho = '572aad42bdb6d403005fb6a0'
       stock_en_despacho = contarProductos(almacen_despacho, sku)
       if cantidad <= stock_en_despacho
         puts "listos para despachar"
         faltante = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, cantidad, precio)
-      	tablasku = SkuStock.find_by(SKU: sku)
-      	tablasku.stock -= cantidad
+      	#tablasku = SkuStock.find_by(SKU: sku)
+      	#tablasku.stock -= cantidad
       else
         puts "debemos mover cosas"
-        @mis_almacenes = ["571262aba980ba030058a5d7", "571262aba980ba030058a5c6", "571262aba980ba030058a5c8", "571262aba980ba030058a5d6"]
+        @mis_almacenes = ["572aad42bdb6d403005fb742", "572aad42bdb6d403005fb69f", "572aad42bdb6d403005fb6a1", "572aad42bdb6d403005fb741"]
         stock_otras_bodegas = 0
         faltante = cantidad - stock_en_despacho
         ###REVISO SI EN TODOS MIS ALMACENES TENGO STOCK
@@ -456,8 +527,8 @@ class ApiController < ApplicationController
             end
           end
           puts "despachamos!"
-          tablasku = SkuStock.find_by(SKU: sku)
-      	  tablasku.stock -= cantidad
+          #tablasku = SkuStock.find_by(SKU: sku)
+      	  #tablasku.stock -= cantidad
           ###despachar()
         else
           ###NO SE PUEDE DESPACHAR
@@ -478,7 +549,7 @@ class ApiController < ApplicationController
 	end
 
 	def get_almacenes_id
-		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		@all_data = getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/almacenes', 'GET', '')
 		@data=Array.new
 		@all_data.each_line do |line|
 			JSON.parse(line).each do |data_value|
@@ -490,20 +561,20 @@ class ApiController < ApplicationController
 
 	def get_all_sku
 		@almacenes = get_almacenes_id
-		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock', 'GET', '')
+		@all_data = getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock', 'GET', '')
 	end
 
 	def all_skus
 		@almacenes = get_almacenes_id
 		@all_skus=Array.new
 		@almacenes.each do |almacen|
-			@all_skus.push(getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId='+almacen, 'GET'+almacen, ''))
+			@all_skus.push(getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock?almacenId='+almacen, 'GET'+almacen, ''))
 		end
 		return @all_skus
 	end
 
 	def got_stock
-		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		@all_data = getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/almacenes', 'GET', '')
 		@data = get_almacenes_id
 		@all_skus=all_skus
 		@response
@@ -531,7 +602,7 @@ class ApiController < ApplicationController
 
 	def contarTotal()
 		sku = params[:sku]
-		url = URI("http://integracion-2016-dev.herokuapp.com/bodega/almacenes")
+		url = URI("http://integracion-2016-prod.herokuapp.com/bodega/almacenes")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Get.new(url)
 		@hashi_get = 'INTEGRACION grupo12:'+generateHash('GET').to_s
@@ -558,10 +629,11 @@ class ApiController < ApplicationController
 
 	def contarTotal2(sku)
 		#sku = params[:sku]
-		url = URI("http://integracion-2016-dev.herokuapp.com/bodega/almacenes")
+		url = URI("http://integracion-2016-prod.herokuapp.com/bodega/almacenes")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Get.new(url)
 		@hashi_get = 'INTEGRACION grupo12:'+generateHash('GET').to_s
+		puts @hashi_get
 		request["authorization"] = @hashi_get
 		request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
 		request["cache-control"] = 'no-cache'
@@ -581,7 +653,7 @@ class ApiController < ApplicationController
 	end
 
 	def got_stock_string
-		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		@all_data = getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/almacenes', 'GET', '')
 		@data = get_almacenes_id
 		@all_skus=all_skus
 		@response
@@ -609,7 +681,7 @@ class ApiController < ApplicationController
 	end
 
 	def got_stock_internal(given_sku)
-		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		@all_data = getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/almacenes', 'GET', '')
 		@data = get_almacenes_id
 		@all_skus=all_skus
 		@response
@@ -633,7 +705,7 @@ class ApiController < ApplicationController
 		@id_oc = params[:idoc]
 
 		begin
-			url = URI("http://mare.ing.puc.cl/oc/obtener/"+@id_oc)
+			url = URI("http://moto.ing.puc.cl/oc/obtener/"+@id_oc)
 			http = Net::HTTP.new(url.host, url.port)
 			request = Net::HTTP::Get.new(url)
 			request["content-type"] = 'application/json'
@@ -727,24 +799,26 @@ class ApiController < ApplicationController
 						puts aceptar_orden(@oc_id)
 						#GENERAR
 						@factura_id = generar_factura(@oc_id)
-						puts @factura_id
+						puts "FACTURA_ID "+@factura_id
 						FacturaOc.create(factura_id:@factura_id, oc_id:@id_oc, estado:"creada")
 						#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
 						fact_resp = enviar_factura(@factura_id, @oc_cliente)
 						if fact_resp["validado"]
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
-							puts foc
+							puts "FOCaceptada"
 							foc.estado = "factura aceptada por cliente"
+							foc.save
 							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
 							orden_compra.estado = 'aceptada'
-							foc.save
+							orden_compra.save
 						else
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
-							puts foc
+							puts "FOCrechazada"
 							foc.estado = "factura rechazada por cliente"
+							foc.save
 							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
 							orden_compra.estado = 'anulada'
-							foc.save
+							orden_compra.save
 						end
 
 						resp_json = {:aceptado => true, :idoc => @oc_id.to_s}.to_json
