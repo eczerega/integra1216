@@ -71,6 +71,22 @@ File.open("./init/tiempos.csv", "r") do |f|
 	end
 end
 
+File.open("./init/datos_grupos.csv", "r") do |f|
+	f.each_line do |line|
+	if ! line.valid_encoding?
+	  line = line.encode("UTF-16be", :invalid=>:replace, :replace=>"?").encode('UTF-8')
+	end	
+		contenido = line.split(';')
+			InfoGrupo.create( 
+				 num_grupo: contenido[0].to_s,
+				 id_grupo: contenido[1].to_s,
+				 id_banco: contenido[2].to_s,
+				 id_almacen: contenido[3].to_s,
+				 ambiente: contenido[4].to_s
+			)
+	end
+end
+
 
 
 
