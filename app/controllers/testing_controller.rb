@@ -57,9 +57,28 @@ class TestingController < ApplicationController
 
 
 	def index
-		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
-		@data = get_almacenes_id
-		@all_skus=all_skus
+		@all_data_leche = getJSONData('http://integra12.ing.puc.cl/api/consultar/7', 'GET', '')
+		@all_data_leche = JSON.parse(@all_data_leche)
+		@all_data_leche = @all_data_leche["stock"]
+
+		@all_data_avena = getJSONData('http://integra12.ing.puc.cl/api/consultar/15', 'GET', '')
+		@all_data_avena = JSON.parse(@all_data_avena)
+		@all_data_avena = @all_data_avena["stock"]
+
+		@all_data_tela_arena = getJSONData('http://integra12.ing.puc.cl/api/consultar/30', 'GET', '')
+		@all_data_tela_arena = JSON.parse(@all_data_tela_arena)
+		@all_data_tela_arena = @all_data_tela_arena["stock"]
+
+		@all_data_cerveza = getJSONData('http://integra12.ing.puc.cl/api/consultar/34', 'GET', '')
+		@all_data_cerveza = JSON.parse(@all_data_cerveza)
+		@all_data_cerveza = @all_data_cerveza["stock"]
+
+		@all_data_hallulla = getJSONData('http://integra12.ing.puc.cl/api/consultar/51', 'GET', '')
+		@all_data_hallulla = JSON.parse(@all_data_hallulla)
+		@all_data_hallulla = @all_data_hallulla["stock"]
+		#@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		#@data = get_almacenes_id
+		#@all_skus=all_skus
 	end
 
 end

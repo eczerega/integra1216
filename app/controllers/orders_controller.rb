@@ -137,11 +137,9 @@ class OrdersController < ApplicationController
 	end
 
 	def index
-		@data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		#@data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
 		
-		@data.each_line do |line|
-
-		end
+		
 
 	  #@response = JSON.parse RestClient.get data_ur_almacenes, {:Authorization => @hashi}
 	end

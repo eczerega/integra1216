@@ -1,6 +1,6 @@
 class FacturaOcsController < ApplicationController
   before_action :set_factura_oc, only: [:show, :edit, :update, :destroy]
-
+layout false
   # GET /factura_ocs
   # GET /factura_ocs.json
   def index

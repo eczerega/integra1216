@@ -50,6 +50,11 @@ app.config(function(
                       templateUrl: '/charts'
                     })
 
+                    .state('factura_ocs', {
+                      url: '/factura_ocs',
+                      templateUrl: '/factura_ocs'
+                    })
+
                     .state('cronjobs', {
                       url: '/cronjobs',
                       templateUrl: '/cronjobs'
@@ -132,7 +137,7 @@ app.config(function(
                     });
 
 
-          $locationProvider.html5Mode(true);
+          //$locationProvider.html5Mode(true);
         });
 
 

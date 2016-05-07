@@ -129,7 +129,7 @@ ActiveRecord::Schema.define(version: 20160507001628) do
     t.string   "Tipo"
     t.integer  "Grupo_Proyecto"
     t.string   "Unidades"
-    t.float    "Costo_produccion_unitario"
+    t.integer  "Costo_produccion_unitario"
     t.integer  "Lote_Produccion"
     t.float    "Tiempo_Medio_Producción"
     t.datetime "created_at",                null: false
