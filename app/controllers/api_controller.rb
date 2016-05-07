@@ -712,7 +712,7 @@ class ApiController < ApplicationController
 					if sku==@oc_sku.to_s
 						seProduce = true
 						precio_unit_sku=Precio.find_by[SKU:sku].Precio_Unitario
-						if @oc_precioUnitario.to_i < sku.Precio_Unitario
+						if @oc_precioUnitario.to_i < precio_unit
 							rechazar_orden(@oc_id, 'Precio incorrecto')
 							resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 							my_hash = JSON.parse(resp_json)
