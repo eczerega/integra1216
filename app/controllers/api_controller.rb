@@ -764,14 +764,13 @@ class ApiController < ApplicationController
 						puts aceptar_orden(@oc_id)
 						#GENERAR
 						@factura_id = generar_factura(@oc_id)
-						puts @factura_id
+						puts "FACTURA_ID "+@factura_id
 						FacturaOc.create(factura_id:@factura_id, oc_id:@id_oc, estado:"creada")
 						#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
 						fact_resp = enviar_factura(@factura_id, @oc_cliente)
 						if fact_resp["validado"]
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
 							puts "FOCaceptada"
-							puts foc
 							foc.estado = "factura aceptada por cliente"
 							foc.save
 							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
@@ -780,7 +779,6 @@ class ApiController < ApplicationController
 						else
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
 							puts "FOCrechazada"
-							puts foc
 							foc.estado = "factura rechazada por cliente"
 							foc.save
 							orden_compra = OcRecibida.find_by(id_dev:@oc_id)
