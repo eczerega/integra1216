@@ -277,6 +277,7 @@ class ApiController < ApplicationController
 		json_array =  responsejson["trx"][0]
 		puts "TRANSACCION" + json_array.to_s + "\n"
 		@monto_trx= json_array["monto"]
+		@origen_trx = json_array["origen"]
 		@destino_trx = json_array["destino"]
 		puts "CUENTA DESTINO" + @destino_trx + "\n"
 
@@ -312,12 +313,22 @@ class ApiController < ApplicationController
 			puts foc
 			foc.estado = "factura pagada"
 			foc.save
+			orden = OcRecibidas.find_by(id_dev: @oc_id)
+			@oc_precioUnitario = orden.precio_unit
+			@oc_cantidad = orden.cantidad
+			@oc_sku = orden.sku
+			info = InfoGrupo.find_by(id_banco: @origen_trx)
+			almacen_destino = info.id_almacen
 
 			respond_to do |format|		
 			  format.html {}
 			  format.json { render :json => @response_default.to_json }
 			  format.js
 			end
+
+			###UNA VEZ CHEQUEADO EL PAGO, REALIZAMOS EL DESPACHO
+			preparar_despacho(@oc_id.to_s, @oc_sku, @oc_cantidad, @oc_precioUnitario, almacen_destino)
+
 		end
 	end
 
@@ -640,6 +651,8 @@ class ApiController < ApplicationController
 			@oc_cantidadDespachada = @response_json[0]["cantidadDespachada"]
 			@oc_cantidad = @response_json[0]["cantidad"]
 			@oc_canal = @response_json[0]["canal"]
+			@oc_creado = @response_json[0]["created_at"]
+
 
 
 			if !(@oc_proveedor.to_s == "572aac69bdb6d403005fb04d")
@@ -693,12 +706,14 @@ class ApiController < ApplicationController
 					if @cantidad.to_i >= @oc_cantidad.to_i
 						#RETORNAR {aceptado,idoc}
 						@response = {:aceptado => true, :idoc => @id_oc}
+						#CREAR ORDEN EN LA BDD
 						#ACEPTAR ORDEN COMPRA
 						puts aceptar_orden(@oc_id)
 						#GENERAR
 						@factura_id = generar_factura(@oc_id)
 						puts @factura_id
-
+						OcRecibidas.create(id_dev:@oc_ic, created_at_dev: canal:@oc_canal, sku:@oc_sku, cantidad:@oc_cantidad, precio_unit:@oc_precioUnitario, entrega_at:@oc_fechaEntrega, despacho_at:@oc_fechaEntrega, estado:@oc_estado, rechazo:'', anulacion:'', id_factura_dev:@factura_id)
+						
 						FacturaOc.create(factura_id:@factura_id, oc_id:@id_oc, estado:"creada")
 						#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
 						fact_resp = enviar_factura(@factura_id, @oc_cliente)
@@ -706,17 +721,17 @@ class ApiController < ApplicationController
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
 							puts foc
 							foc.estado = "factura aceptada por cliente"
+							orden_compra = OcRecibidas.find_by(id_dev:@oc_ic)
+							orden_compra.estado = 'aceptada'
 							foc.save
 						else
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
 							puts foc
 							foc.estado = "factura rechazada por cliente"
+							orden_compra = OcRecibidas.find_by(id_dev:@oc_ic)
+							orden_compra.estado = 'anulada'
 							foc.save
 						end
-
-						###UNA VEZ CHEQUEADO EL PAGO, REALIZAMOS EL DESPACHO
-						#preparar_despacho(@oc_id.to_s, @oc_sku, @oc_cantidad, @oc_precioUnitario, almacen_destino)
-
 
 						resp_json = {:aceptado => true, :idoc => @oc_id.to_s}.to_json
 						my_hash = JSON.parse(resp_json)
