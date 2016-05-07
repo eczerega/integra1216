@@ -702,17 +702,18 @@ class ApiController < ApplicationController
 			else
 				#REVISO MIS SKUS
 				puts @oc_sku
-				@mis_sku = {7,15,30,34,51}
+				@mis_sku = [7,15,30,34,51]
 				puts @mis_sku
 				seProduce= false
 				precioCorrecto= false
 				
 				@mis_sku.each do |sku|
 					puts sku
-					if sku==@oc_sku.to_s
+					if sku.to_s==@oc_sku.to_s
 						seProduce = true
-						precio_unit_sku=Precio.find_by[SKU:sku].Precio_Unitario
-						if @oc_precioUnitario.to_i < precio_unit
+						precio_unit_sku=Precio.find_by(SKU:sku).Precio_Unitario
+
+						if @oc_precioUnitario.to_i < precio_unit_sku
 							rechazar_orden(@oc_id, 'Precio incorrecto')
 							resp_json = {:aceptado => false, :idoc => @oc_id.to_s}.to_json
 							my_hash = JSON.parse(resp_json)
@@ -748,7 +749,7 @@ class ApiController < ApplicationController
 						#GENERAR
 						@factura_id = generar_factura(@oc_id)
 						puts @factura_id
-						OcRecibidas.create(id_dev:@oc_ic, created_at_dev: canal:@oc_canal, sku:@oc_sku, cantidad:@oc_cantidad, precio_unit:@oc_precioUnitario, entrega_at:@oc_fechaEntrega, despacho_at:@oc_fechaEntrega, estado:@oc_estado, rechazo:'', anulacion:'', id_factura_dev:@factura_id)
+						OcRecibida.create(id_dev:@oc_ic, created_at_dev:@oc_creado, canal:@oc_canal, sku:@oc_sku, cantidad:@oc_cantidad, precio_unit:@oc_precioUnitario, entrega_at:@oc_fechaEntrega, despacho_at:@oc_fechaEntrega, estado:@oc_estado, rechazo:'', anulacion:'', id_factura_dev:@factura_id)
 						
 						FacturaOc.create(factura_id:@factura_id, oc_id:@id_oc, estado:"creada")
 						#ENVIAR FACTURA->No lo he testeado porque el otro grupo no tiene implementada la API
@@ -757,14 +758,14 @@ class ApiController < ApplicationController
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
 							puts foc
 							foc.estado = "factura aceptada por cliente"
-							orden_compra = OcRecibidas.find_by(id_dev:@oc_ic)
+							orden_compra = OcRecibida.find_by(id_dev:@oc_ic)
 							orden_compra.estado = 'aceptada'
 							foc.save
 						else
 							foc = FacturaOc.find_by(oc_id: @oc_id.to_s, factura_id: @factura_id)
 							puts foc
 							foc.estado = "factura rechazada por cliente"
-							orden_compra = OcRecibidas.find_by(id_dev:@oc_ic)
+							orden_compra = OcRecibida.find_by(id_dev:@oc_ic)
 							orden_compra.estado = 'anulada'
 							foc.save
 						end

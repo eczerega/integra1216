@@ -133,8 +133,14 @@ class OrdersController < ApplicationController
 	  puts precio_producto
 	  puts tiempo_produccion_prod
 
-	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"produccion").id_banco
-	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"produccion").id_banco
+	  id_cliente = InfoGrupo.find_by(num_grupo:grupo_proyecto,ambiente:"produccion").id_grupo
+	  id_proveedor = InfoGrupo.find_by(num_grupo:12,ambiente:"produccion").id_grupo
+
+	  if id_proveedor=="572aac69bdb6d403005fb04d"
+	  	puts "yay :)"
+	  else
+	  	puts "nay :("
+	  end
 
 	  fecha_entrega = (DateTime.now+tiempo_produccion_prod.hours+1.hours).strftime('%Q')
 	  puts fecha_entrega
