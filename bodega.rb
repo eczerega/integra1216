@@ -186,7 +186,7 @@ end
 
 def crear_trx(monto, origenId, destinoId)
 	dinero = monto.to_s
-	url = URI("http://mare.ing.puc.cl/banco/trx")
+	url = URI("http://moto.ing.puc.cl/banco/trx")
 	http = Net::HTTP.new(url.host, url.port)
 	request = Net::HTTP::Put.new(url)
 	request["content-type"] = 'application/json'
@@ -199,7 +199,7 @@ def crear_trx(monto, origenId, destinoId)
 end
 
 def rechazar_factura(facturaId, motivo)
-	url = URI("http://mare.ing.puc.cl/facturas/reject")
+	url = URI("http://moto.ing.puc.cl/facturas/reject")
 	http = Net::HTTP.new(url.host, url.port)
 	request = Net::HTTP::Post.new(url)
 	request["content-type"] = 'application/json'
@@ -217,7 +217,7 @@ end
 #572aad42bdb6d403005fb741 otra
 #572aad42bdb6d403005fb742 pulmon
 #puts 'INTEGRACION grupo12:'+generateHash('GET').to_s
-#puts crear_trx(1, '571262c3a980ba030058ab65', '571262c3a980ba030058ab60')
+#puts crear_trx(1, '572aac69bdb6d403005fb05a', '571262c3a980ba030058ab60')
 #puts contarTotal('7')
 #traspaso_interno('572aad42bdb6d403005fb6a1', '572aad42bdb6d403005fb69f', '15', 10)
 #puts traspaso_interno('572aad42bdb6d403005fb6a1', '572aad42bdb6d403005fb69f', sku, qty)

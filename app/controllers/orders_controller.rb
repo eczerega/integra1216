@@ -8,7 +8,7 @@ class OrdersController < ApplicationController
 
 	layout false
 	def generateHash (contenidoSignature)
-		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
 		return encoded_string
 	end
 
@@ -68,7 +68,7 @@ class OrdersController < ApplicationController
       @hashi = 'INTEGRACION grupo12:'+generateHash('PUT'+param_string).to_s
       puts @hashi
       
-      url = URI.parse("http://mare.ing.puc.cl/oc"+url_req)
+      url = URI.parse("http://moto.ing.puc.cl/oc"+url_req)
       req = Net::HTTP::Put.new(url.to_s,initheader = {'Content-Type' =>'application/json'})
       req['Authorization'] = @hashi
       req.body=params
@@ -92,7 +92,7 @@ class OrdersController < ApplicationController
       @hashi = 'INTEGRACION grupo12:'+generateHash('PUT'+param_string).to_s
       #puts @hashi
       
-      url = URI.parse("http://mare.ing.puc.cl/oc"+url_req)
+      url = URI.parse("http://moto.ing.puc.cl/oc"+url_req)
       req = Net::HTTP::Put.new(url.to_s,initheader = {'Content-Type' =>'application/json'})
       req['Authorization'] = @hashi
       req.body=params
@@ -125,7 +125,7 @@ class OrdersController < ApplicationController
 
   	def crear_trx(monto, origenId, destinoId)
 		dinero = monto.to_s
-		url = URI("http://mare.ing.puc.cl/banco/trx")
+		url = URI("http://moto.ing.puc.cl/banco/trx")
 		http = Net::HTTP.new(url.host, url.port)
 		request = Net::HTTP::Put.new(url)
 		request["content-type"] = 'application/json'

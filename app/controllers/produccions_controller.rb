@@ -1,5 +1,5 @@
 
-url_bodega="http://integracion-2016-dev.herokuapp.com/bodega"
+url_bodega="http://integracion-2016-prod.herokuapp.com/bodega"
 
 
 

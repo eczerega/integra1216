@@ -1,7 +1,7 @@
 class CellarController < ApplicationController
 	  layout false
 	def generateHash (contenidoSignature)
-		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
 		return encoded_string
 	end
 
@@ -13,6 +13,7 @@ class CellarController < ApplicationController
 	end
 
 	def getJSONData(url_req, url_data, params)
+		'ola veve'
 		@hashi = 'INTEGRACION grupo12:'+generateHash(url_data).to_s
 		puts @hashi
 		url = URI.parse(url_req)
@@ -24,7 +25,7 @@ class CellarController < ApplicationController
 		return res.body		
 	end
 	def index
-		@data = JSON.parse(getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', ''))
+		@data = JSON.parse(getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/almacenes', 'GET', ''))
 		
 	end
 end

@@ -2,9 +2,9 @@ require 'net/ssh'
 require 'net/sftp'
 require 'nokogiri'
 
-CONTENT_SERVER_DOMAIN_NAME = "mare.ing.puc.cl"
+CONTENT_SERVER_DOMAIN_NAME = "moto.ing.puc.cl"
 CONTENT_SERVER_FTP_LOGIN = "integra12"
-CONTENT_SERVER_FTP_PASSWORD = "qNvdKs48"
+CONTENT_SERVER_FTP_PASSWORD = "365BLssd"
 
 
 

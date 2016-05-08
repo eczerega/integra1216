@@ -9,7 +9,7 @@ class TestingController < ApplicationController
 
 	layout false
 	def generateHash (contenidoSignature)
-		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+		encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
 		return encoded_string
 	end
 
@@ -26,7 +26,7 @@ class TestingController < ApplicationController
 	end
 
 	def get_almacenes_id
-		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
+		@all_data = getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/almacenes', 'GET', '')
 		@data=Array.new
 		@all_data.each_line do |line|
 			JSON.parse(line).each do |data_value|
@@ -38,7 +38,7 @@ class TestingController < ApplicationController
 
 	def get_all_sku
 		@almacenes = get_almacenes_id
-		@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock', 'GET', '')
+		@all_data = getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock', 'GET', '')
 
 	end
 
@@ -46,13 +46,13 @@ class TestingController < ApplicationController
 		@almacenes = get_almacenes_id
 		@all_skus=Array.new
 		@almacenes.each do |almacen|
-			@all_skus.push(getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId='+almacen, 'GET'+almacen, ''))
+			@all_skus.push(getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock?almacenId='+almacen, 'GET'+almacen, ''))
 		end
 		return @all_skus
 	end
 
 	def sku_by_almacen_id(almacen_id)
-		@all_skus.push(getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId='+almacen, 'GET'+almacen, ''))
+		@all_skus.push(getJSONData('http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock?almacenId='+almacen, 'GET'+almacen, ''))
 	end
 
 
@@ -76,9 +76,7 @@ class TestingController < ApplicationController
 		@all_data_hallulla = getJSONData('http://integra12.ing.puc.cl/api/consultar/51', 'GET', '')
 		@all_data_hallulla = JSON.parse(@all_data_hallulla)
 		@all_data_hallulla = @all_data_hallulla["stock"]
-		#@all_data = getJSONData('http://integracion-2016-dev.herokuapp.com/bodega/almacenes', 'GET', '')
-		#@data = get_almacenes_id
-		#@all_skus=all_skus
+
 	end
 
 end

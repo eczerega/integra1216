@@ -70,7 +70,7 @@ skip_before_filter :verify_authenticity_token
 #TAREA
 
     def generateHash (contenidoSignature)
-      encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
+      encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
       return encoded_string
     end
 
@@ -104,7 +104,7 @@ skip_before_filter :verify_authenticity_token
 
   def crear_oc_api
 
-    @response=oc_url("http://mare.ing.puc.cl/oc","crear")
+    @response=oc_url("http://moto.ing.puc.cl/oc","crear")
     respond_to do |format|
     format.json {  render :json => @response }
     end
