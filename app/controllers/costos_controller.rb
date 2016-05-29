@@ -1,6 +1,6 @@
 class CostosController < ApplicationController
   before_action :set_costo, only: [:show, :edit, :update, :destroy]
-    layout false
+
   # GET /costos
   # GET /costos.json
   def index

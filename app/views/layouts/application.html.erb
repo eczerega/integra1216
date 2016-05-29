@@ -21,7 +21,7 @@
 	<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 	<![endif]-->
 </head>
-<body ng-app="taller" ng-controller="MainCtrl">
+<body >
     <div id="wrapper">
     <div id="loading-bar-container"></div>
 
@@ -171,7 +171,7 @@
         <div id="page-wrapper">
         <div style="background-color: white">
             <div class="container-fluid" ui-view ng-cloak >
-                
+                <%= yield %>
             <div >
         </div>
             </div>

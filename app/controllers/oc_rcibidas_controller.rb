@@ -1,6 +1,5 @@
 class OcRcibidasController < ApplicationController
-  before_action :set_oc_rcibida, only: [:show, :edit, :update, :destroy]
-    layout false
+
   # GET /oc_rcibidas
   # GET /oc_rcibidas.json
   def index

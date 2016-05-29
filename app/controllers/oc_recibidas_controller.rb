@@ -4,7 +4,7 @@ require "net/http"
 class OcRecibidasController < ApplicationController
   before_action :set_oc_recibida, only: [:show, :edit, :update, :destroy]
 skip_before_filter :verify_authenticity_token
-    layout false
+
   # GET /oc_recibidas
   # GET /oc_recibidas.json
   def index

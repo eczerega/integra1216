@@ -1,6 +1,6 @@
 class PreciosController < ApplicationController
   before_action :set_precio, only: [:show, :edit, :update, :destroy]
-    layout false
+
   # GET /precios
   # GET /precios.json
   def index
