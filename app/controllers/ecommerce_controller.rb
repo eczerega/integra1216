@@ -5,7 +5,10 @@ require 'uri'
 class EcommerceController < ApplicationController
   layout false
   def generateHash (contenidoSignature)
-    encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
+    #PRODUCCION
+    #encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','Cfs%agh:i#B8&f6', contenidoSignature)).chomp
+    #DESARROLLO
+    encoded_string = Base64.encode64(OpenSSL::HMAC.digest('sha1','akVf0btGVOwkhvI', contenidoSignature)).chomp
     return encoded_string
   end
 
@@ -43,7 +46,10 @@ class EcommerceController < ApplicationController
   end
 
   def contarProductos(almacenId, sku)
-      url = URI("http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock?almacenId="+almacenId)
+      #PRODUCCION
+      #url = URI("http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock?almacenId="+almacenId)
+      #DESARROLLO
+      url = URI("http://integracion-2016-dev.herokuapp.com/bodega/skusWithStock?almacenId="+almacenId)
       http = Net::HTTP.new(url.host, url.port)
       request = Net::HTTP::Get.new(url)
       @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET'+ almacenId).to_s
@@ -63,8 +69,10 @@ class EcommerceController < ApplicationController
   end
 
   def contarTotal(sku)
+    #PRODUCCION
     #url = URI("http://integracion-2016-prod.herokuapp.com/bodega/almacenes")
-    url = URI("http://integracion-2016-prod.herokuapp.com/bodega/almacenes")
+    #DESARROLLO
+    url = URI("http://integracion-2016-dev.herokuapp.com/bodega/almacenes")
     http = Net::HTTP.new(url.host, url.port)
     request = Net::HTTP::Get.new(url)
     @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET').to_s
@@ -84,7 +92,7 @@ class EcommerceController < ApplicationController
       return total  
   end
 
-  def despachar_borrador(id_boleta, sku, cantidad)
+  def despachar(id_boleta, sku, cantidad)
     if cantidad.to_i<contarTotal(sku)
       puts "SE PREPARA DESPACHO"
       #preparar_despacho(@oc_id.to_s, @oc_sku, @oc_cantidad, @oc_precio)
@@ -93,11 +101,37 @@ class EcommerceController < ApplicationController
     end
   end
 
-  def despachar()
-    id_boleta=params["id_boleta"].to_s
-    sku=params["sku"].to_s
-    cantidad=params["cantidad"].to_s
-    despachar_borrador(id_boleta, sku, cantidad)
+  def recibir_compra()  
+    @sku=params["sku"].to_s
+    @cantidad=params["cantidad"].to_i
+
+    if @cantidad.to_i<contarTotal(@sku)
+      @cliente=params["cliente"].to_s
+      @direccion=params["direccion"].to_s
+
+      #CALCULAR TOTAL
+      @precio_unitario = Precio.find_by(SKU:@sku).Precio_Unitario
+      @total = (@cantidad*@precio_unitario).to_s
+      #DESARROLLO
+      @proveedor = "571262b8a980ba030058ab5a"
+      #PRODUCCION
+      # @proveedor = "572aac69bdb6d403005fb04d"
+      @boleta = generateBoleta(@proveedor, @cliente, @total)
+      @response =  {:boletaGenerada => @boleta}
+          respond_to do |format|
+            format.html {}
+            format.json { render :json => @response }
+            format.js
+      end
+    else
+      @response =  {:respuesta => "No hay suficiente"}
+          respond_to do |format|
+            format.html {}
+            format.json { render :json => @response }
+            format.js
+      end
+      puts "NO HAY SUFICIENTE CANTIDAD"
+    end
   end
 end
 
