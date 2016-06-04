@@ -32,19 +32,6 @@ class EcommerceController < ApplicationController
     return response.read_body
   end
 
-  def generateBoletaApi()
-    proveedor = "571262b8a980ba030058ab5a"
-    cliente = "123"
-    total = "10"
-    @boleta = generateBoleta(proveedor,cliente,total)
-    @response =  {:boletaGenerada => @boleta}
-        respond_to do |format|
-          format.html {}
-          format.json { render :json => @response }
-          format.js
-    end
-  end
-
   def contarProductos(almacenId, sku)
       #PRODUCCION
       #url = URI("http://integracion-2016-prod.herokuapp.com/bodega/skusWithStock?almacenId="+almacenId)
@@ -92,12 +79,185 @@ class EcommerceController < ApplicationController
       return total  
   end
 
-  def despachar(id_boleta, sku, cantidad)
-    if cantidad.to_i<contarTotal(sku)
-      puts "SE PREPARA DESPACHO"
-      #preparar_despacho(@oc_id.to_s, @oc_sku, @oc_cantidad, @oc_precio)
+  #------------DESPACHAR---------------#
+
+  def mover_a_bodega(id_producto, id_almacen)
+    #PRODUCCION
+    #url = URI("http://integracion-2016-prod.herokuapp.com/bodega/moveStock")
+    #DESARROLLO
+    url = URI("http://integracion-2016-dev.herokuapp.com/bodega/moveStock")
+    http = Net::HTTP.new(url.host, url.port)
+    request = Net::HTTP::Post.new(url)
+    @hashi_get = 'INTEGRACION grupo12:'+generateHash('POST'+ id_producto + id_almacen).to_s
+    request["authorization"] = @hashi_get
+    request["content-type"] = 'application/json'
+    request["cache-control"] = 'no-cache'
+    request["postman-token"] = 'afdedc9a-5265-3c5b-971d-16c402393539'
+    request.body = "{\n    \"almacenId\": \""+ id_almacen +"\",\n    \"productoId\": \""+id_producto+"\"\n}"
+    response = http.request(request)
+    puts "\n MOVIENDO A BODEGA\n"
+    puts response.read_body
+    puts "END MOVIENDO A BODEGA\n\n"
+  end
+
+  def moverProductos(id_oc, almacenId, destinoId, sku, cantidad, faltante, precio)
+    #PRODUCCION
+    #@almacen_despacho = '572aad42bdb6d403005fb6a0'
+    #DESARROLLO
+    @almacen_despacho = '571262aba980ba030058a5c7'
+    #PRODUCCION
+    #url = URI("http://integracion-2016-prod.herokuapp.com/bodega/stock?almacenId=" + almacenId + "&sku=" + sku + "&limit=199" )
+    #DESARROLLO
+    url = URI("http://integracion-2016-dev.herokuapp.com/bodega/stock?almacenId=" + almacenId + "&sku=" + sku + "&limit=199" )
+      http = Net::HTTP.new(url.host, url.port)
+      request = Net::HTTP::Get.new(url)
+      @hashi_get = 'INTEGRACION grupo12:'+generateHash('GET'+ almacenId + sku).to_s
+      request["authorization"] = @hashi_get 
+      request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+      request["cache-control"] = 'no-cache'
+      request["postman-token"] = '2d38d414-b654-7ea2-d7f2-e1379efa0526'
+      response = http.request(request)
+
+      JSON.parse(response.body).each do |line|
+        @producto_a_mover = line["_id"].to_s
+        puts @producto_a_mover
+
+        if almacenId != @almacen_despacho
+          puts "moviendo a despacho..."
+          mover_a_bodega(@producto_a_mover, @almacen_despacho)
+        end
+
+        puts "despachando desde " + almacenId + " hacia " + destinoId + "..."
+        despachar(id_oc, sku, cantidad, @producto_a_mover, destinoId, precio)
+        faltante -= 1
+
+        if faltante == 0
+            return faltante
+        end
+        
+      end
+    return faltante
+  end
+
+  def despachar(id_oc, sku, cantidad, producto, direccion, precio)
+    price = precio.to_s
+    direccion = "DCC"
+    #PRODUCCION
+    #url = URI("http://integracion-2016-prod.herokuapp.com/bodega/stock")
+    #DESARROLLO
+    url = URI("http://integracion-2016-dev.herokuapp.com/bodega/stock")
+
+    http = Net::HTTP.new(url.host, url.port)
+
+    request = Net::HTTP::Delete.new(url)
+    request["content-type"] = 'multipart/form-data; boundary=---011000010111000001101001'
+    @hashi_get = 'INTEGRACION grupo12:'+generateHash('DELETE'+ producto + direccion + price + id_oc).to_s
+    request["authorization"] = @hashi_get
+    request["cache-control"] = 'no-cache'
+    request["postman-token"] = '4558c91c-6883-428e-39eb-5b51fbc410eb'
+    request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"productoId\"\r\n\r\n"+producto+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"direccion\"\r\n\r\n"+direccion+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"precio\"\r\n\r\n"+price+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"oc\"\r\n\r\n"+id_oc+"\r\n-----011000010111000001101001--"
+
+    response = http.request(request)
+    puts "\nRESPUESTA DESPACHAR\n"
+    puts response.read_body
+    puts "END RESPUESTA DESPACHAR\n\n"
+  end
+
+def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
+    #PRODUCCION
+    #almacen_despacho = '572aad42bdb6d403005fb6a0'
+    almacen_despacho = '571262aba980ba030058a5c7'
+    stock_en_despacho = contarProductos(almacen_despacho, sku)
+    if cantidad <= stock_en_despacho
+      puts "listos para despachar"
+      faltante = cantidad
+      while(faltante > 0)
+        faltante = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, faltante, precio)
+      end
+      #tablasku = SkuStock.find_by(SKU: sku)
+      #tablasku.stock -= cantidad
     else
-      puts "NO HAY SUFICIENTE STOCK"
+      puts "Hay " + stock_en_despacho.to_s + " en despacho" 
+      puts "debemos mover cosas"
+      #PRODUCCION
+      #@mis_almacenes = ["572aad42bdb6d403005fb742", "572aad42bdb6d403005fb69f", "572aad42bdb6d403005fb6a1", "572aad42bdb6d403005fb741"]
+      #DESARROLLO
+      @mis_almacenes = ["571262aba980ba030058a5d6", "571262aba980ba030058a5c6", "571262aba980ba030058a5c8", "571262aba980ba030058a5d7"]
+      stock_otras_bodegas = 0
+      faltante = cantidad
+      ###REVISO SI EN TODOS MIS ALMACENES TENGO STOCK
+      @mis_almacenes.each do |almacen|
+        stock_otrxas_bodegas += contarProductos(almacen, sku)
+        if cantidad <= stock_otras_bodegas + stock_en_despacho
+          break
+        end
+      end
+      ###UNA VEZ CONFIRMADO MI STOCK, MUEVO LOS PRODUCTOS PARA EL DESPACHO
+      if cantidad <= stock_otras_bodegas + stock_en_despacho
+        puts "Hay stock suficiente"
+        while (stock_en_despacho > 0)
+          stock_anterior = stock_en_despacho
+          stock_en_despacho = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, stock_en_despacho, precio)
+          faltante -= stock_anterior - stock_en_despacho
+        end
+          #faltante = moverProductos(id_oc, almacen_despacho, almacen_destino, sku, cantidad, faltante, precio, modo)
+          if faltante < 200
+            @mis_almacenes.each do |almacen|
+              faltante = moverProductos(id_oc, almacen, almacen_destino, sku, cantidad, faltante, precio)
+              #faltante = moverProductos(id_oc, almacen, almacen_destino, sku, cantidad, faltante, precio, modo)
+              if faltante <= 0
+                  break
+              end
+            end
+          else
+            @mis_almacenes.each do |almacen|
+              stock_almacen = contarProductos(almacen, sku)
+              if stock_almacen >= faltante
+                while (faltante > 0)
+                faltante = moverProductos(id_oc, almacen, almacen_destino, sku, cantidad, faltante, precio)
+                if faltante <= 0
+                      break
+                  end
+              end
+              else
+                while (stock_almacen > 0)
+                  stock_anterior = stock_almacen
+                stock_almacen = moverProductos(id_oc, almacen, almacen_destino, sku, cantidad, stock_almacen, precio)
+                faltante -= faltante_anterior - stock_almacen
+                if faltante <= 0
+                      break
+                  end
+              end
+              end
+              if faltante <= 0
+                  break
+              end
+            end
+          end
+          
+          puts "despachamos!"
+          #tablasku = SkuStock.find_by(SKU: sku)
+          #tablasku.stock -= cantidad
+          ###despachar()
+      else
+          puts "NO SE PUEDE DESPACHAR"
+          ###NO SE PUEDE DESPACHAR
+      end
+    end 
+  end
+
+  def despacharApi()
+    id_boleta=params["id_boleta"].to_s    
+    sku=params["sku"].to_s 
+    cantidad=params["cantidad"].to_i
+    precio = Precio.find_by(SKU:sku).Precio_Unitario    
+    direccion=params["direccion"].to_s
+    preparar_despacho(id_boleta, sku, cantidad, precio, direccion)
+    @response =  {:respuesta => "Preparar Despacho"}
+        respond_to do |format|
+          format.html {}
+          format.json { render :json => @response }
+          format.js
     end
   end
 

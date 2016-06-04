@@ -33,9 +33,9 @@ Rails.application.routes.draw do
   get 'api/oc/recibir/:idoc' => 'api#gestionar_oc', defaults: {format: :json}
   get 'api/facturas/recibir/:idfactura' => 'api#recibir_factura', defaults: {format: :json}
   get 'api/javi_prueba' => 'api#time'
-  get 'api/crear_trx' => 'api#crear_trx_exp'
-  get 'api/crear_boleta' => 'ecommerce#generateBoletaApi', defaults: {format: :json}  
+  get 'api/crear_trx' => 'api#crear_trx_exp' 
   get 'api/comprar' => 'ecommerce#recibir_compra', defaults: {format: :json}
+  get 'api/despachar' => 'ecommerce#despacharApi', defaults: {format: :json}
 
   get 'api/test_felipe' => 'produccions#ApiProducirMp'
   get 'api/test_felipe2' => 'orders#comprar_producto'
