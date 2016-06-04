@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  id_boleta: MyString
+  estado: MyString
+  cantidad7: 1
+  cantidad15: 1
+  cantidad30: 1
+  cantidad34: 1
+  cantidad51: 1
+  cliente: MyString
+  direccion: MyString
+
+two:
+  id_boleta: MyString
+  estado: MyString
+  cantidad7: 1
+  cantidad15: 1
+  cantidad30: 1
+  cantidad34: 1
+  cantidad51: 1
+  cliente: MyString
+  direccion: MyString

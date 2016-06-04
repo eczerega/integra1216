@@ -34,7 +34,7 @@ Rails.application.routes.draw do
   get 'api/facturas/recibir/:idfactura' => 'api#recibir_factura', defaults: {format: :json}
   get 'api/javi_prueba' => 'api#time'
   get 'api/crear_trx' => 'api#crear_trx_exp' 
-  get 'api/comprar' => 'ecommerce#recibir_compra', defaults: {format: :json}
+  post 'api/comprar' => 'ecommerce#recibir_compra', defaults: {format: :json}
   get 'api/despachar' => 'ecommerce#despacharApi', defaults: {format: :json}
 
   get 'api/test_felipe' => 'produccions#ApiProducirMp'
@@ -42,6 +42,9 @@ Rails.application.routes.draw do
   get 'api/test_felipe3' => 'orders#unix_time'
   get 'api/crear_orden_web' => 'produccions#crear_orden_web'
   get 'api/despachos/recibir/:idfactura' => 'api#recibir_despacho', defaults: {format: :json}
+  get 'comprar' => 'ecommerce#new'
+  get 'compraok' => 'ecommerce#urlok'
+  get 'comprafail' => 'ecommerce#urlfail'
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
 

@@ -1,0 +1,37 @@
+<h1>Comprar</h1>
+
+
+  <div class="col-form">
+    <%= form_tag(controller: "ecommerce", action: "recibir_compra", method: "post") do %>
+      <%= label_tag(:cliente, "nombre")%>
+      <%= text_field_tag(:cliente)%>
+
+      <%= label_tag(:direccion, "direccion") %>
+      <%= text_field_tag(:direccion)%>
+
+      <%= content_tag(:br) %>
+      <%= label_tag(:cantidad1, "cantidad de SKU: 7")%>
+      <%= text_field_tag(:cantidad1)%>
+
+      <%= content_tag(:br) %>
+      <%= label_tag(:cantidad2, "cantidad de SKU:15")%>
+      <%= text_field_tag(:cantidad2)%>
+
+      <%= content_tag(:br) %>
+      <%= label_tag(:cantidad3, "cantidad de SKU:30")%>
+      <%= text_field_tag(:cantidad3)%>
+
+      <%= content_tag(:br) %>
+      <%= label_tag(:cantidad4, "cantidad de SKU:34")%>
+      <%= text_field_tag(:cantidad4)%>
+
+      <%= content_tag(:br) %>
+      <%= label_tag(:cantidad5, "cantidad de SKU:51")%>
+      <%= text_field_tag(:cantidad5)%>
+
+
+      <%= content_tag(:br) %>
+      <%= submit_tag("Comprar")%>
+    <% end %>
+  
+</div>

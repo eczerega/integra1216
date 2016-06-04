@@ -28,8 +28,9 @@ class EcommerceController < ApplicationController
     request.body = "-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"proveedor\"\r\n\r\n"+proveedor+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"cliente\"\r\n\r\n"+cliente+"\r\n-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"total\"\r\n\r\n"+total+"\r\n-----011000010111000001101001--"
 
     response = http.request(request)
-    puts response.read_body
-    return response.read_body
+    @oc_array = JSON.parse(response.body)
+    @oc_json = JSON.parse(@oc_array.to_json)
+    return @oc_json["_id"]
   end
 
   def contarProductos(almacenId, sku)
@@ -187,7 +188,7 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
       faltante = cantidad
       ###REVISO SI EN TODOS MIS ALMACENES TENGO STOCK
       @mis_almacenes.each do |almacen|
-        stock_otrxas_bodegas += contarProductos(almacen, sku)
+        stock_otras_bodegas += contarProductos(almacen, sku)
         if cantidad <= stock_otras_bodegas + stock_en_despacho
           break
         end
@@ -222,8 +223,8 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
               else
                 while (stock_almacen > 0)
                   stock_anterior = stock_almacen
-                stock_almacen = moverProductos(id_oc, almacen, almacen_destino, sku, cantidad, stock_almacen, precio)
-                faltante -= faltante_anterior - stock_almacen
+                  stock_almacen = moverProductos(id_oc, almacen, almacen_destino, sku, cantidad, stock_almacen, precio)
+                  faltante -= stock_anterior - stock_almacen
                 if faltante <= 0
                       break
                   end
@@ -262,36 +263,143 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
   end
 
   def recibir_compra()  
-    @sku=params["sku"].to_s
-    @cantidad=params["cantidad"].to_i
+    @cantidad1=params["cantidad1"].to_i
+    @cantidad2=params["cantidad2"].to_i
+    @cantidad3=params["cantidad3"].to_i
+    @cantidad4=params["cantidad4"].to_i
+    @cantidad5=params["cantidad5"].to_i
 
-    if @cantidad.to_i<contarTotal(@sku)
+    ###VERIFICAMOS STOCK
+    haystock = true
+
+    if !@cantidad1.nil?
+      if @cantidad1 > contarTotal('7')
+        haystock = false
+      end
+    end
+
+    if !@cantidad2.nil?
+      if @cantidad2 > contarTotal('15')
+        haystock = false
+      end
+    end
+
+    if !@cantidad3.nil?
+      if @cantidad3 > contarTotal('30')
+        haystock = false
+      end
+    end
+
+    if !@cantidad4.nil?
+      if @cantidad4 > contarTotal('34')
+        haystock = false
+      end
+    end
+
+    if !@cantidad5.nil?
+      if @cantidad5 > contarTotal('51')
+        haystock = false
+      end
+    end
+
+    if haystock
       @cliente=params["cliente"].to_s
       @direccion=params["direccion"].to_s
 
+
       #CALCULAR TOTAL
-      @precio_unitario = Precio.find_by(SKU:@sku).Precio_Unitario
-      @total = (@cantidad*@precio_unitario).to_s
+      
+      @total = 0
+      if @cantidad1 > 0
+        @precio_unitario1 = Precio.find_by(SKU:'7').Precio_Unitario
+        @total += @cantidad1*@precio_unitario1
+      end
+      
+      if @cantidad2 > 0
+        @precio_unitario2 = Precio.find_by(SKU:'15').Precio_Unitario
+        @total += @cantidad2*@precio_unitario2
+      end
+
+      if @cantidad3 > 0
+        @precio_unitario3 = Precio.find_by(SKU:'30').Precio_Unitario
+        @total += @cantidad3*@precio_unitario3
+      end
+
+      if @cantidad4 > 0
+        @precio_unitario4 = Precio.find_by(SKU:'34').Precio_Unitario
+        @total += @cantidad4*@precio_unitario4
+      end
+
+      if @cantidad5 > 0
+        @precio_unitario5 = Precio.find_by(SKU:'51').Precio_Unitario
+        @total += @cantidad5*@precio_unitario5
+      end
+
+      @total = @total.to_s
       #DESARROLLO
       @proveedor = "571262b8a980ba030058ab5a"
       #PRODUCCION
       # @proveedor = "572aac69bdb6d403005fb04d"
       @boleta = generateBoleta(@proveedor, @cliente, @total)
-      @response =  {:boletaGenerada => @boleta}
-          respond_to do |format|
-            format.html {}
-            format.json { render :json => @response }
-            format.js
-      end
+      
+      Boletum.create(id_boleta:@boleta, estado:"creada", cantidad7:@cantidad1, cantidad15:@cantidad2, cantidad30:@cantidad3, cantidad34:@cantidad4, cantidad51:@cantidad5, cliente:@cliente, direccion:@direccion)
+      #urlok = 'http%3A%2F%2Flocalhost%3A3000%2Fcompraok%3FboletaId%3D'+@boleta+'%26sku%3D'+@sku
+
+      urlok = 'http%3A%2F%2Flocalhost%3A3000%2Fcompraok%3FboletaId%3D' + @boleta
+      urlfail = 'http%3A%2F%2Flocalhost%3A3000%2Fcomprafail'
+      url = 'http://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+urlok+'&cancelUrl='+urlfail+'&boletaId='+@boleta
+      redirect_to url
     else
-      @response =  {:respuesta => "No hay suficiente"}
-          respond_to do |format|
-            format.html {}
-            format.json { render :json => @response }
-            format.js
-      end
+      
       puts "NO HAY SUFICIENTE CANTIDAD"
+      redirect_to root_url
     end
+    
+  end
+
+  def new
+
+  end
+
+  def urlok
+    boleta=params["boletaId"].to_s 
+    Boletum.find_by(id_boleta: boleta).estado = "pagada"
+    cantidad7 = Boletum.find_by(id_boleta: boleta).cantidad7
+    cantidad15 = Boletum.find_by(id_boleta: boleta).cantidad15
+    cantidad30 = Boletum.find_by(id_boleta: boleta).cantidad30
+    cantidad34 = Boletum.find_by(id_boleta: boleta).cantidad34
+    cantidad51 = Boletum.find_by(id_boleta: boleta).cantidad51
+    direccion = Boletum.find_by(id_boleta: boleta).direccion
+    if cantidad7
+      precio = Precio.find_by(SKU:'7').Precio_Unitario    
+      preparar_despacho(boleta, '7', cantidad7, precio, direccion)
+    end
+    if cantidad15
+      precio = Precio.find_by(SKU:'15').Precio_Unitario    
+      preparar_despacho(boleta, '15', cantidad15, precio, direccion)
+    end
+
+    if cantidad30
+      precio = Precio.find_by(SKU:'30').Precio_Unitario    
+      preparar_despacho(boleta, '30', cantidad30, precio, direccion)
+    end
+
+    if cantidad34
+      precio = Precio.find_by(SKU:'34').Precio_Unitario    
+      preparar_despacho(boleta, '34', cantidad34, precio, direccion)
+    end
+
+    if cantidad51
+      precio = Precio.find_by(SKU:'51').Precio_Unitario    
+      preparar_despacho(boleta, '51', cantidad51, precio, direccion)
+    end    
+
+    puts 'hemos despachado yay!'
+    Boletum.find_by(id_boleta: boleta).estado = "despachada"
+  end
+
+  def urlfail
+
   end
 end
 
