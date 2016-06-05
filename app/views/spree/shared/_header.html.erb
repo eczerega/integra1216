@@ -1,15 +1,21 @@
-<div id="spree-header">
-  <header id="header" data-hook>
+<style type="text/css">
+  #spree-header {
+    background: #1c5c92 url() center center;
+}
+</style>
+
+<div id="spree-header" style="background-color: #770d0d !important;" >
+  <header id="header" data-hook style="background-color: #770d0d !important;">
     <div class="container">
       <div class="row">
         <figure id="logo" class="col-md-4" data-hook>
-          <%= logo %>
+          <h3 style="color: white"> Grupo 12 ecommerce </h3>
         </figure>
         <%= render :partial => 'spree/shared/nav_bar' %>
       </div>
     </div>
   </header>
-  <div class="container">
+  <div class="container" style="background-color: #770d0d !important;">
     <%= render :partial => 'spree/shared/main_nav_bar' if store_menu? %>
   </div>
 </div>
