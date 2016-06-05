@@ -307,9 +307,6 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
       preparar_despacho(boleta, '51', cantidad51, precio, direccion)
     end    
 
-    puts 'hemos despachado yay!'
-    Boletum.find_by(id_boleta: boleta).estado = "despachada"
-
       #Spree::StockMovement.create(stock_item_id: 7, quantity: 10)
       #contarTotal('7')
       stock7= Spree::Product.where(name: 'Leche').take.master.stock_items.first.count_on_hand.to_i
@@ -375,6 +372,16 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
 
 
 
+
+
+      puts 'por la mierda'
+
+
+
+
+
+    puts 'hemos despachado yay!'
+    Boletum.find_by(id_boleta: boleta).estado = "despachada"
 
 
 
