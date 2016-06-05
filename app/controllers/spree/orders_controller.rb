@@ -497,7 +497,7 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
       Spree::StockMovement.create(stock_item_id: id_30, quantity: stock30)
       Spree::StockMovement.create(stock_item_id: id_34, quantity: stock34)
       Spree::StockMovement.create(stock_item_id: id_51, quantity: stock51)
-      puts 'ID LECHEEE: ' + Spree::Product.where(name: 'Leche').take.id
+      puts 'ID LECHEEE: ' + Spree::Product.where(name: 'Leche').take.id.to_s
       Spree::StockMovement.create(stock_item_id: id_7, quantity: stock7_real.to_i)
       Spree::StockMovement.create(stock_item_id: id_15, quantity: stock15_real.to_i)
       Spree::StockMovement.create(stock_item_id: id_30, quantity: stock30_real.to_i)
