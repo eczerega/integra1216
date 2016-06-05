@@ -427,7 +427,7 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
       urlok = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcompraok%3FboletaId%3D' + @boleta.to_s
       #urlfail = 'http%3A%2F%2Flocalhost%3A3000%2Fcomprafail'
       urlfail = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcomprafail'
-      url = 'http://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+urlok+'&cancelUrl='+urlfail+'&boletaId='+@boleta
+      url = 'http://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+urlok+'&cancelUrl='+urlfail+'&boletaId='+@boleta.to_s
       redirect_to url
     else
       
