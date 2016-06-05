@@ -11,7 +11,7 @@ module Spree
 
     validates :phone, presence: true, if: :require_phone?
 
-    validate :state_validate, :postal_code_validate
+    #validate :state_validate, :postal_code_validate
 
     alias_attribute :first_name, :firstname
     alias_attribute :last_name, :lastname
