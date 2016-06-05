@@ -322,6 +322,74 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
 
 
   def recibir_compra(nombre, calle, cantidad1, cantidad2, cantidad3, cantidad4, cantidad5)  
+      
+
+      #Spree::StockMovement.create(stock_item_id: 7, quantity: 10)
+      #contarTotal('7')
+      stock7= Spree::Product.where(name: 'Leche').take.master.stock_items.first.count_on_hand.to_i
+      if stock7 > 0
+        stock7 = stock7*-1
+      else
+        stock7 = 0
+      end
+      stock15=  Spree::Product.where(name: 'Avena').take.master.stock_items.first.count_on_hand.to_i
+      if stock15 > 0
+        stock15 = stock15*-1
+      else
+        stock15 = 0
+      end      
+      stock30=  Spree::Product.where(name: 'Tela de Algodon').take.master.stock_items.first.count_on_hand.to_i 
+      if stock30 > 0
+        stock30 = stock30*-1
+      else
+        stock30 = 0
+      end      
+      stock34=  Spree::Product.where(name: 'Cerveza').take.master.stock_items.first.count_on_hand.to_i
+       if stock34 > 0
+        stock34 = stock34*-1
+      else
+        stock34 = 0
+      end     
+      stock51=  Spree::Product.where(name: 'Pan de Hallulla').take.master.stock_items.first.count_on_hand.to_i
+      if stock51 > 0
+        stock51 = stock51*-1
+      else
+        stock51 = 0
+      end
+
+      stock7_real = contarTotal('7')
+      stock15_real = contarTotal('15')
+      stock30_real = contarTotal('30')
+      stock34_real = contarTotal('34')
+      stock51_real = contarTotal('51')
+      puts 'REAL 7: '+ stock7_real.to_s + ', SPREE: ' + stock7.to_s
+      puts 'REAL 15: '+ stock15_real.to_s + ', SPREE: ' + stock15.to_s
+      puts 'REAL 30: '+ stock30_real.to_s + ', SPREE: ' + stock30.to_s
+      puts 'REAL 34: '+ stock34_real.to_s + ', SPREE: ' + stock34.to_s
+      puts 'REAL 51: '+ stock51_real.to_s + ', SPREE: ' + stock51.to_s
+      id_7= Spree::Product.where(name: 'Leche').take.id
+      id_15= Spree::Product.where(name: 'Avena').take.id
+      id_30= Spree::Product.where(name: 'Tela de Algodon').take.id
+      id_34= Spree::Product.where(name: 'Cerveza').take.id
+      id_51= Spree::Product.where(name: 'Pan de Hallulla').take.id
+      Spree::StockMovement.create(stock_item_id: id_7, quantity: stock7)
+      Spree::StockMovement.create(stock_item_id: id_15, quantity: stock15)
+      Spree::StockMovement.create(stock_item_id: id_30, quantity: stock30)
+      Spree::StockMovement.create(stock_item_id: id_34, quantity: stock34)
+      Spree::StockMovement.create(stock_item_id: id_51, quantity: stock51)
+
+      Spree::StockMovement.create(stock_item_id: id_7, quantity: stock7_real)
+      Spree::StockMovement.create(stock_item_id: id_15, quantity: stock15_real)
+      Spree::StockMovement.create(stock_item_id: id_30, quantity: stock30_real)
+      Spree::StockMovement.create(stock_item_id: id_34, quantity: stock34_real)
+      Spree::StockMovement.create(stock_item_id: id_51, quantity: stock51_real)
+
+
+
+
+
+
+=begin
     if cantidad1== nil
       @cantidad1=0
     else
@@ -414,6 +482,10 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
         @total += @cantidad5*@precio_unitario5
       end
 
+
+
+
+
       @total = @total.to_s
       #DESARROLLO
       @proveedor = "571262b8a980ba030058ab5a"
@@ -429,13 +501,17 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
       urlfail = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcomprafail'
       #urlfail = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcomprafail'
       url = 'http://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+urlok+'&cancelUrl='+urlfail+'&boletaId='+@boleta.to_s
+
+
+
+
       redirect_to url
     else
       
       puts "NO HAY SUFICIENTE CANTIDAD"
       redirect_to root_url
     end
-    
+=end    
   end
 
 
