@@ -394,7 +394,7 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
       preparar_despacho(boleta, '51', cantidad51, precio, direccion)
     end    
 
-    puts 'hemos despachado yay!'
+    puts 'hemos despachado yay2!'
     Boletum.find_by(id_boleta: boleta).estado = "despachada"
   end
 

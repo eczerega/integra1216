@@ -352,7 +352,7 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
       puts 'REAL 51: '+ stock51_real.to_s + ', SPREE: ' + stock51.to_s
       
       #Esto esta ahrdoceao para heroku
-      id_7= 7
+      id_7= Spree::Product.where(name: 'Leche').take.id.to_i
       #fin hardcodeo
       id_15= Spree::Product.where(name: 'Avena').take.id
       id_30= Spree::Product.where(name: 'Tela de Algodon').take.id
@@ -374,7 +374,7 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
 
 
 
-      puts 'por la mierda'
+      puts 'por la mierda1'
 
 
 
