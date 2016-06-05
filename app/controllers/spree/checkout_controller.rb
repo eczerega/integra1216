@@ -4,6 +4,7 @@ module Spree
   # checkout which has nothing to do with updating an order that this approach
   # is waranted.
   class CheckoutController < Spree::StoreController
+    skip_before_filter :verify_authenticity_token
     before_action :load_order_with_lock
     before_action :ensure_valid_state_lock_version, only: [:update]
     before_action :set_state_if_present
@@ -23,10 +24,16 @@ module Spree
 
     rescue_from Spree::Core::GatewayError, with: :rescue_from_spree_gateway_error
 
+
+
+
     # Updates the order and advances to the next state (when possible.)
     def update
+      puts 'OLA VV REEE QLS:  ' + params.to_s
       if @order.update_from_params(params, permitted_checkout_attributes, request.headers.env)
         @order.temporary_address = !params[:save_user_address]
+        #@order.zipcode=
+        #puts 'PUTA LA WEA DE MIERDAAAA'
         unless @order.next
           flash[:error] = @order.errors.full_messages.join("\n")
           redirect_to(checkout_state_path(@order.state)) && return
@@ -79,7 +86,7 @@ module Spree
     # Should be overriden if you have areas of your checkout that don't match
     # up to a step within checkout_steps, such as a registration step
     def skip_state_validation?
-      false
+      true
     end
 
     def load_order_with_lock
@@ -143,14 +150,28 @@ module Spree
     end
 
     def before_delivery
+
+
       return if params[:order].present?
 
       packages = @order.shipments.map(&:to_package)
       @differentiator = Spree::Stock::Differentiator.new(@order, packages)
     end
 
+
+
+
+
+  def after_payment
+    puts 'SE LLAMO LA WEA'
+  end
+
+
+
     def before_payment
+
       if @order.checkout_steps.include? "delivery"
+
         packages = @order.shipments.map(&:to_package)
         @differentiator = Spree::Stock::Differentiator.new(@order, packages)
         @differentiator.missing.each do |variant, quantity|
@@ -192,4 +213,8 @@ module Spree
       address_params[:zipcode] = address_params[:zipcode].strip if address_params[:zipcode]
     end
   end
+
+
+
+
 end

@@ -262,7 +262,7 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
     end
   end
 
-  def recibir_compra()  
+  def recibir_compra(cantidad1, cantidad2, cantidad3, cantidad4)  
     @cantidad1=params["cantidad1"].to_i
     @cantidad2=params["cantidad2"].to_i
     @cantidad3=params["cantidad3"].to_i

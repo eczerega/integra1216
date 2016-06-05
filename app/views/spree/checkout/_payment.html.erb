@@ -3,51 +3,21 @@
     <h3 class="panel-title"><%= Spree.t(:payment_information) %></h3>
   </div>
   <div class="panel-body" data-hook="checkout_payment_step">
-    <% if @payment_sources.present? %>
-      <div class="card_options">
-        <%= radio_button_tag 'use_existing_card', 'yes', true %>
-        <label for="use_existing_card_yes">
-          <%= Spree.t(:use_existing_cc) %>
-        </label>
-        <br/>
-        <%= radio_button_tag 'use_existing_card', 'no' %>
-        <label for="use_existing_card_no">
-          <%= Spree.t(:use_new_cc_or_payment_method) %>
-        </label>
-      </div>
-
-      <div id="existing_cards">
-        <p class="form-group" data-hook="existing_cards">
-          <table class="existing-credit-card-list">
-            <tbody>
-              <% @payment_sources.each do |card| %>
-                <tr id="<%= dom_id(card,'spree')%>" class="<%= cycle('even', 'odd') %>">
-                  <td><%= card.name %></td>
-                  <td><%= card.display_number %></td>
-                  <td><%= card.month %> / <%= card.year %></td>
-                  <td>
-                    <%= radio_button_tag "order[existing_card]", card.id, (card == @payment_sources.first), { class: "existing-cc-radio" }  %>
-                  </td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </p>
-      </div>
-    <% end %>
 
     <ul class="list-group" id="payment-method-fields" data-hook>
       <% @order.available_payment_methods.each do |method| %>
         <li class="list-group-item">
+          <% if method.name=='Check' %>
           <label>
-            <%= radio_button_tag "order[payments_attributes][][payment_method_id]", method.id, method == @order.available_payment_methods.first %>
-            <%= Spree.t(method.name, :scope => :payment_methods, :default => method.name) %>
+            <%= radio_button_tag "order[payments_attributes][][payment_method_id]", method.id, method == @order.available_payment_methods.second %>
+            Muchas gracias por preferirnos
           </label>
+          <% end %>
         </li>
       <% end %>
     </ul>
 
-    <ul class="nav" id="payment-methods" data-hook>
+    <ul class="nav" style="display:none" id="payment-methods" data-hook>
       <% @order.available_payment_methods.each do |method| %>
         <li id="payment_method_<%= method.id %>" class="<%= 'last' if method == @order.available_payment_methods.last %>" data-hook>
           <fieldset>
@@ -57,10 +27,6 @@
       <% end %>
     </ul>
 
-    <p class='field' data-hook='coupon_code'>
-      <%= form.label :coupon_code %><br />
-      <%= form.text_field :coupon_code, :class => 'form-control' %>
-    </p>
   </div>
 </div>
 
