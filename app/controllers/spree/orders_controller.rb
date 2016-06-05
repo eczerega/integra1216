@@ -35,7 +35,8 @@ module Spree
     response = http.request(request)
     @oc_array = JSON.parse(response.body)
     @oc_json = JSON.parse(@oc_array.to_json)
-    return @oc_json["_id"].to_i
+    puts 'por la putaaaaa;  ' + @oc_json["_id"].to_s
+    return @oc_json["_id"].to_s
   end
 
   def contarProductos(almacenId, sku)
@@ -418,7 +419,7 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
       @proveedor = "571262b8a980ba030058ab5a"
       #PRODUCCION
       # @proveedor = "572aac69bdb6d403005fb04d"
-      @boleta = generateBoleta(@proveedor, @cliente, @total)
+      @boleta = generateBoleta(@proveedor, @cliente, @total).to_s
       
       Boletum.create(id_boleta:@boleta, estado:"creada", cantidad7:@cantidad1, cantidad15:@cantidad2, cantidad30:@cantidad3, cantidad34:@cantidad4, cantidad51:@cantidad5, cliente:@cliente, direccion:@direccion)
       #urlok = 'http%3A%2F%2Flocalhost%3A3000%2Fcompraok%3FboletaId%3D'+@boleta+'%26sku%3D'+@sku
