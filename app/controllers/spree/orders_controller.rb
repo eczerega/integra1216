@@ -423,10 +423,10 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
       Boletum.create(id_boleta:@boleta, estado:"creada", cantidad7:@cantidad1, cantidad15:@cantidad2, cantidad30:@cantidad3, cantidad34:@cantidad4, cantidad51:@cantidad5, cliente:@cliente, direccion:@direccion)
       #urlok = 'http%3A%2F%2Flocalhost%3A3000%2Fcompraok%3FboletaId%3D'+@boleta+'%26sku%3D'+@sku
 
-      #urlok = 'http%3A%2F%2Flocalhost%3A3000%2Fcompraok%3FboletaId%3D' + @boleta
-      urlok = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcompraok%3FboletaId%3D' + @boleta.to_s
-      #urlfail = 'http%3A%2F%2Flocalhost%3A3000%2Fcomprafail'
-      urlfail = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcomprafail'
+      urlok = 'http%3A%2F%2Flocalhost%3A3000%2Fcompraok%3FboletaId%3D' + @boleta
+      #urlok = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcompraok%3FboletaId%3D' + @boleta.to_s
+      urlfail = 'http%3A%2F%2Flocalhost%3A3000%2Fcomprafail'
+      #urlfail = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcomprafail'
       url = 'http://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+urlok+'&cancelUrl='+urlfail+'&boletaId='+@boleta.to_s
       redirect_to url
     else
