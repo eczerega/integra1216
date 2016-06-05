@@ -613,7 +613,7 @@ module Spree
     end
 
     def send_cancel_email
-      OrderMailer.cancel_email(id).deliver_later
+      #OrderMailer.cancel_email(id).deliver_later
     end
 
     def after_resume

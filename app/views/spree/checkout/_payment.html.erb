@@ -5,13 +5,18 @@
   <div class="panel-body" data-hook="checkout_payment_step">
 
     <ul class="list-group" id="payment-method-fields" data-hook>
+      <% counter = 0 %>
       <% @order.available_payment_methods.each do |method| %>
         <li class="list-group-item">
+          <% if counter >0 %>
+          <% break %>
+          <% end %>
           <% if method.name=='Check' %>
           <label>
             <%= radio_button_tag "order[payments_attributes][][payment_method_id]", method.id, method == @order.available_payment_methods.second %>
             Muchas gracias por preferirnos
           </label>
+          <% counter += 1 %>
           <% end %>
         </li>
       <% end %>
