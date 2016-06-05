@@ -32,7 +32,7 @@
   </p>
 
   <% if Spree::Config[:address_requires_state] %>
-    <p class="form-group"  id=<%="#{address_id}state" %>>
+    <p class="form-group" style="display: none"  id=<%="#{address_id}state" %>>
       <% have_states = !address.country.states.empty? %>
       <%= form.label :state, Spree.t(:state) %><span class='required' id=<%="#{address_id}state-required"%>>*</span><br/>
 
