@@ -324,6 +324,123 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
   def recibir_compra(nombre, calle, cantidad1, cantidad2, cantidad3, cantidad4, cantidad5)  
       
 
+
+
+
+        begin
+            if cantidad1== nil
+              @cantidad1=0
+            else
+              @cantidad1=cantidad1
+            end
+            if cantidad2== nil
+              @cantidad2=0
+            else
+              @cantidad2=cantidad2
+            end
+            if cantidad3== nil
+              @cantidad3=0
+            else
+              @cantidad3=cantidad3
+            end
+            if cantidad4== nil
+              @cantidad4=0
+            else
+              @cantidad4=cantidad4
+            end
+            if cantidad5== nil
+              @cantidad5=0
+            else
+              @cantidad5=cantidad5
+            end
+
+            ###VERIFICAMOS STOCK
+            haystock = true
+
+            if !@cantidad1.nil?
+              if @cantidad1 > contarTotal('7')
+                haystock = false
+              end
+            end
+
+            if !@cantidad2.nil?
+              if @cantidad2 > contarTotal('15')
+                haystock = false
+              end
+            end
+
+            if !@cantidad3.nil?
+              if @cantidad3 > contarTotal('30')
+                haystock = false
+              end
+            end
+
+            if !@cantidad4.nil?
+              if @cantidad4 > contarTotal('34')
+                haystock = false
+              end
+            end
+
+            if !@cantidad5.nil?
+              if @cantidad5 > contarTotal('51')
+                haystock = false
+              end
+            end
+
+            if haystock
+              @cliente=nombre
+              @direccion=calle
+
+
+              #CALCULAR TOTAL
+              
+              @total = 0
+              if @cantidad1 > 0
+                @precio_unitario1 = Precio.find_by(SKU:'7').Precio_Unitario
+                @total += @cantidad1*@precio_unitario1
+              end
+              
+              if @cantidad2 > 0
+                @precio_unitario2 = Precio.find_by(SKU:'15').Precio_Unitario
+                @total += @cantidad2*@precio_unitario2
+              end
+
+              if @cantidad3 > 0
+                @precio_unitario3 = Precio.find_by(SKU:'30').Precio_Unitario
+                @total += @cantidad3*@precio_unitario3
+              end
+
+              if @cantidad4 > 0
+                @precio_unitario4 = Precio.find_by(SKU:'34').Precio_Unitario
+                @total += @cantidad4*@precio_unitario4
+              end
+
+              if @cantidad5 > 0
+                @precio_unitario5 = Precio.find_by(SKU:'51').Precio_Unitario
+                @total += @cantidad5*@precio_unitario5
+              end
+
+
+
+
+
+              @total = @total.to_s
+              #DESARROLLO
+              @proveedor = "571262b8a980ba030058ab5a"
+              #PRODUCCION
+              # @proveedor = "572aac69bdb6d403005fb04d"
+              @boleta = generateBoleta(@proveedor, @cliente, @total).to_s
+              
+              Boletum.create(id_boleta:@boleta, estado:"creada", cantidad7:@cantidad1, cantidad15:@cantidad2, cantidad30:@cantidad3, cantidad34:@cantidad4, cantidad51:@cantidad5, cliente:@cliente, direccion:@direccion)
+              #urlok = 'http%3A%2F%2Flocalhost%3A3000%2Fcompraok%3FboletaId%3D'+@boleta+'%26sku%3D'+@sku
+
+              urlok = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcompraok%3FboletaId%3D' + @boleta.to_s
+              #urlok = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcompraok%3FboletaId%3D' + @boleta.to_s
+              urlfail = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcomprafail'
+              #urlfail = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcomprafail'
+              url = 'http://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+urlok+'&cancelUrl='+urlfail+'&boletaId='+@boleta.to_s
+
+
       #Spree::StockMovement.create(stock_item_id: 7, quantity: 10)
       #contarTotal('7')
       stock7= Spree::Product.where(name: 'Leche').take.master.stock_items.first.count_on_hand.to_i
@@ -388,130 +505,13 @@ def preparar_despacho(id_oc, sku, cantidad, precio, almacen_destino)
 
 
 
-
-=begin
-    if cantidad1== nil
-      @cantidad1=0
-    else
-      @cantidad1=cantidad1
-    end
-    if cantidad2== nil
-      @cantidad2=0
-    else
-      @cantidad2=cantidad2
-    end
-    if cantidad3== nil
-      @cantidad3=0
-    else
-      @cantidad3=cantidad3
-    end
-    if cantidad4== nil
-      @cantidad4=0
-    else
-      @cantidad4=cantidad4
-    end
-    if cantidad5== nil
-      @cantidad5=0
-    else
-      @cantidad5=cantidad5
-    end
-
-    ###VERIFICAMOS STOCK
-    haystock = true
-
-    if !@cantidad1.nil?
-      if @cantidad1 > contarTotal('7')
-        haystock = false
-      end
-    end
-
-    if !@cantidad2.nil?
-      if @cantidad2 > contarTotal('15')
-        haystock = false
-      end
-    end
-
-    if !@cantidad3.nil?
-      if @cantidad3 > contarTotal('30')
-        haystock = false
-      end
-    end
-
-    if !@cantidad4.nil?
-      if @cantidad4 > contarTotal('34')
-        haystock = false
-      end
-    end
-
-    if !@cantidad5.nil?
-      if @cantidad5 > contarTotal('51')
-        haystock = false
-      end
-    end
-
-    if haystock
-      @cliente=nombre
-      @direccion=calle
-
-
-      #CALCULAR TOTAL
-      
-      @total = 0
-      if @cantidad1 > 0
-        @precio_unitario1 = Precio.find_by(SKU:'7').Precio_Unitario
-        @total += @cantidad1*@precio_unitario1
-      end
-      
-      if @cantidad2 > 0
-        @precio_unitario2 = Precio.find_by(SKU:'15').Precio_Unitario
-        @total += @cantidad2*@precio_unitario2
-      end
-
-      if @cantidad3 > 0
-        @precio_unitario3 = Precio.find_by(SKU:'30').Precio_Unitario
-        @total += @cantidad3*@precio_unitario3
-      end
-
-      if @cantidad4 > 0
-        @precio_unitario4 = Precio.find_by(SKU:'34').Precio_Unitario
-        @total += @cantidad4*@precio_unitario4
-      end
-
-      if @cantidad5 > 0
-        @precio_unitario5 = Precio.find_by(SKU:'51').Precio_Unitario
-        @total += @cantidad5*@precio_unitario5
-      end
-
-
-
-
-
-      @total = @total.to_s
-      #DESARROLLO
-      @proveedor = "571262b8a980ba030058ab5a"
-      #PRODUCCION
-      # @proveedor = "572aac69bdb6d403005fb04d"
-      @boleta = generateBoleta(@proveedor, @cliente, @total).to_s
-      
-      Boletum.create(id_boleta:@boleta, estado:"creada", cantidad7:@cantidad1, cantidad15:@cantidad2, cantidad30:@cantidad3, cantidad34:@cantidad4, cantidad51:@cantidad5, cliente:@cliente, direccion:@direccion)
-      #urlok = 'http%3A%2F%2Flocalhost%3A3000%2Fcompraok%3FboletaId%3D'+@boleta+'%26sku%3D'+@sku
-
-      urlok = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcompraok%3FboletaId%3D' + @boleta.to_s
-      #urlok = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcompraok%3FboletaId%3D' + @boleta.to_s
-      urlfail = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcomprafail'
-      #urlfail = 'http%3A%2F%2Fdry-beyond-21763.herokuapp.com%2Fcomprafail'
-      url = 'http://integracion-2016-dev.herokuapp.com/web/pagoenlinea?callbackUrl='+urlok+'&cancelUrl='+urlfail+'&boletaId='+@boleta.to_s
-
-
-
-
-      redirect_to url
-    else
-      
-      puts "NO HAY SUFICIENTE CANTIDAD"
-      redirect_to root_url
-    end
-=end    
+              redirect_to url
+            else
+              
+              puts "NO HAY SUFICIENTE CANTIDAD"
+              redirect_to root_url
+            end
+        end    
   end
 
 
